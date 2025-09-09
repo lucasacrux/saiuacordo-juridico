@@ -1,0 +1,369 @@
+{
+  "cookies": [
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/fonts/saj/fonts",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/fonts/saj/fonts",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/fonts/saj",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/fonts/saj",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/icons-png",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/icons-png",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/imagens/certificado",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/imagens/certificado",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/css",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/css",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/js",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/softheme/src/js",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/imagens/spw",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/imagens/spw",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/imagens",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/imagens",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/css",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/css",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/jsp",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/jsp",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "6F215765F51290010CB9A954C9138D10.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/js",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg/js",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "magistrado",
+      "value": "undefined",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/sajcas",
+      "expires": 1788642159.058371,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "loginCertificado",
+      "value": "false",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/sajcas",
+      "expires": 1788642159.058665,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "loginCertificadoCofreDigital",
+      "value": "false",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/sajcas",
+      "expires": 1788642159.058822,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "7F704F8F6CF5BF6B2F57FDD1A331F50C.cas5",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/sajcas",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "K-JSESSIONID-knbbofpc",
+      "value": "17BF628BBFCB73AC70C09BED7A6B8D48",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "012D74B68BD72B455CCC1558E47BD1CC.cpopg3",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/cpopg",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "K-JSESSIONID-hdhockji",
+      "value": "3176203C464E7BFCA0EEDAC714847616",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/esaj",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "BDAE5CDCB41AA4138274A41230A15686.layout4",
+      "domain": "esaj.tjsp.jus.br",
+      "path": "/esaj",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__utmz",
+      "value": "173948983.1756681585.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
+      "domain": ".esaj.tjsp.jus.br",
+      "path": "/",
+      "expires": 1772874160,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__utmc",
+      "value": "173948983",
+      "domain": ".esaj.tjsp.jus.br",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__utma",
+      "value": "173948983.301016013.1756681585.1757096552.1757105499.8",
+      "domain": ".esaj.tjsp.jus.br",
+      "path": "/",
+      "expires": 1791666160.046451,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__utmt",
+      "value": "1",
+      "domain": ".esaj.tjsp.jus.br",
+      "path": "/",
+      "expires": 1757106756,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__utmb",
+      "value": "173948983.4.10.1757105499",
+      "domain": ".esaj.tjsp.jus.br",
+      "path": "/",
+      "expires": 1757107960,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://esaj.tjsp.jus.br",
+      "localStorage": [
+        {
+          "name": "cbPesquisa",
+          "value": "NUMPROC"
+        },
+        {
+          "name": "intervalo",
+          "value": "{\"tempo\":159.996,\"horaAtual\":1757106180061}"
+        }
+      ]
+    }
+  ]
+}

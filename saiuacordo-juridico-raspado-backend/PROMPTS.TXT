@@ -1,0 +1,16 @@
+Gostaria de retomar meu projeto do saiuacordo jurídico. 
+É um projeto que a ideia é fazer o scrape do tjsp, 
+para depois incluir todos os outros tribunais. Esse projeto já está iniciado. 
+Tem 2 backends e o nosso foco inicial é usar o segundo deles, 
+que é o saiuacordo-juridico-raspado-backend. 
+O projeto tem as seguintes pastas e arquivos: 
+saiuacordo-juridico-raspado-backend
+ --node_modules (pasta com várias pastas e arquivos dentro)
+ --scripts - dentro de scripts tem: 
+ -- scrape_one.js 
+ --.env 
+ --package-lock.json 
+ --package.json 
+ --server.js 
+ --worker.js 
+ Me ajuda?

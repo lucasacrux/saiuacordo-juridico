@@ -1,0 +1,145 @@
+{
+  "status": "success",
+  "message": "Sucesso",
+  "count": 3,
+  "items": [
+    {
+      "id": 344543014,
+      "data_disponibilizacao": "2025-08-06",
+      "siglaTribunal": "TJSP",
+      "tipoComunicacao": "Intimação",
+      "nomeOrgao": "Foro de Lorena - 2ª Vara Cível",
+      "idOrgao": 93082,
+      "texto": "Processo 1001158-11.2022.8.26.0323 - Execução de Título Extrajudicial - DIREITO CIVIL - Acrux Securitizadora S/A (acrux) - Juiz(a) de Direito: Dr(a). Valdir Marins Alves Vistos. Fl. 319: Compulsando os autos, verifica-se que não foram realizadas pesquisas de endereço, via sistemas judiciais eletrônicos em relação ao executado. Assim, antes de apreciar o pedido de citação por edital, proceda-se a pesquisa de endereço do executado acima qualificado, através dos sistemas SISBAJUD e INFOJUD, juntando-se extrato em separado. Aguarde-se por cinco dias, em cartório: após, extraia-se o extrato final, manifestando a parte em prosseguimento. Em restando infrutíferas as pesquisas, fica desde logo deferido a citação por edital, expedindo-se o necessário. Anoto que, para cumprimento do quanto determinado acima, deverá o exequente recolher as custas para as pesquisas. Intime-se. Lorena, 05 de agosto de 2025. - ADV: GUILHERME GOMES DE CARVALHO MACEDO (OAB 415538/SP)",
+      "numero_processo": "10011581120228260323",
+      "meio": "D",
+      "link": null,
+      "tipoDocumento": "Intimação",
+      "nomeClasse": "EXECUçãO DE TíTULO EXTRAJUDICIAL",
+      "codigoClasse": "12154",
+      "numeroComunicacao": 113774,
+      "ativo": true,
+      "hash": "JqKnM286BEs4EzWsOTBmpL3RWjAkoy",
+      "status": "P",
+      "motivo_cancelamento": null,
+      "data_cancelamento": null,
+      "datadisponibilizacao": "06/08/2025",
+      "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+      "numeroprocessocommascara": "1001158-11.2022.8.26.0323",
+      "destinatarios": [
+        {
+          "nome": "ACRUX SECURITIZADORA S/A (ACRUX)",
+          "polo": "A",
+          "comunicacao_id": 344543014
+        }
+      ],
+      "destinatarioadvogados": [
+        {
+          "id": 603979018,
+          "comunicacao_id": 344543014,
+          "advogado_id": 1092469,
+          "created_at": "2025-08-05T16:46:24",
+          "updated_at": "2025-08-05T16:46:24",
+          "advogado": {
+            "id": 1092469,
+            "nome": "GUILHERME GOMES DE CARVALHO MACEDO",
+            "numero_oab": "415538",
+            "uf_oab": "SP"
+          }
+        }
+      ]
+    },
+    {
+      "id": 274815841,
+      "data_disponibilizacao": "2025-05-21",
+      "siglaTribunal": "TJSP",
+      "tipoComunicacao": "Intimação",
+      "nomeOrgao": "Foro de Lorena - 2ª Vara Cível",
+      "idOrgao": 93082,
+      "texto": "ADV: Guilherme Gomes de Carvalho Macedo (OAB 415538/SP) Processo 1001158-11.2022.8.26.0323 - Execução de Título Extrajudicial - Exeqte: Acrux Securitizadora S/A (acrux) - \"À exequente, para que se manifeste sobre as respostas dos ofícios juntadas nos autos, bem como sobre eventuais ofícios não respondidos. Prazo de 15 dias\"",
+      "numero_processo": "10011581120228260323",
+      "meio": "D",
+      "link": "https://www.dje.tjsp.jus.br",
+      "tipoDocumento": "Intimação",
+      "nomeClasse": "EXECUçãO DE TíTULO EXTRAJUDICIAL",
+      "codigoClasse": "12154",
+      "numeroComunicacao": 29101,
+      "ativo": true,
+      "hash": "XxDnJOQmYNGsxXwcoTy9WgrRkWV9dl",
+      "status": "P",
+      "motivo_cancelamento": null,
+      "data_cancelamento": null,
+      "datadisponibilizacao": "21/05/2025",
+      "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+      "numeroprocessocommascara": "1001158-11.2022.8.26.0323",
+      "destinatarios": [
+        {
+          "polo": "A",
+          "comunicacao_id": 274815841,
+          "nome": "ACRUX SECURITIZADORA S/A (ACRUX)"
+        }
+      ],
+      "destinatarioadvogados": [
+        {
+          "id": 460879003,
+          "comunicacao_id": 274815841,
+          "advogado_id": 1092469,
+          "created_at": "2025-05-20T03:58:17",
+          "updated_at": "2025-05-20T03:58:17",
+          "advogado": {
+            "id": 1092469,
+            "nome": "GUILHERME GOMES DE CARVALHO MACEDO",
+            "numero_oab": "415538",
+            "uf_oab": "SP"
+          }
+        }
+      ]
+    },
+    {
+      "id": 55669545,
+      "data_disponibilizacao": "2023-08-30",
+      "siglaTribunal": "TJSP",
+      "tipoComunicacao": "Intimação",
+      "nomeOrgao": "2ª Vara Cível",
+      "idOrgao": 41739,
+      "texto": "ADV: Guilherme Gomes de Carvalho Macedo (OAB 415538/SP) Processo 1001158-11.2022.8.26.0323 - Execução de Título Extrajudicial - Exeqte: Acrux Securitizadora S/A (acrux) - Certifico e dou fé que, nos termos do art. 203, § 4º, do CPC, preparei para remessa ao Diário da Justiça Eletrônico o(s) seguinte(s) ato(s) ordinatório(s): \"No prazo de 15 dias, recolha-se a diligência do Oficial de Justiça, conforme artigo 1.016 das Normas de Serviço da Corregedoria Geral de Justiça: \"O recolhimento das despesas de condução será efetuado por meio de guia própria (GRD guia de recolhimento de diligências), para crédito em conta aberta na agência ou posto bancário, da comarca ou fórum, a que distribuído o feito correspondente. Parágrafo único. A guia de recolhimento das despesas de diligência (GRD) terá 5 (cinco) vias (modelo próprio), destinando-se a primeira ao estabelecimento de crédito, a segunda à parte, a terceira e quarta à guarda pelo escrivão, a quinta ao entranhamento nos autos.\"",
+      "numero_processo": "10011581120228260323",
+      "meio": "D",
+      "link": "https://www.dje.tjsp.jus.br",
+      "tipoDocumento": "Intimação",
+      "nomeClasse": "EXECUçãO DE TíTULO EXTRAJUDICIAL",
+      "codigoClasse": "12154",
+      "numeroComunicacao": 155798,
+      "ativo": true,
+      "hash": "e9MjpmEYnOsGwjvflTlPnd1RqrnD41",
+      "status": "P",
+      "motivo_cancelamento": null,
+      "data_cancelamento": null,
+      "datadisponibilizacao": "30/08/2023",
+      "meiocompleto": "Diário de Justiça Eletrônico Nacional",
+      "numeroprocessocommascara": "1001158-11.2022.8.26.0323",
+      "destinatarios": [
+        {
+          "nome": "ACRUX SECURITIZADORA S/A (ACRUX)",
+          "polo": "A",
+          "comunicacao_id": 55669545
+        }
+      ],
+      "destinatarioadvogados": [
+        {
+          "id": 95110059,
+          "comunicacao_id": 55669545,
+          "advogado_id": 1092469,
+          "created_at": "2023-08-29T12:35:07",
+          "updated_at": "2023-08-29T12:35:07",
+          "advogado": {
+            "id": 1092469,
+            "nome": "GUILHERME GOMES DE CARVALHO MACEDO",
+            "numero_oab": "415538",
+            "uf_oab": "SP"
+          }
+        }
+      ]
+    }
+  ]
+}

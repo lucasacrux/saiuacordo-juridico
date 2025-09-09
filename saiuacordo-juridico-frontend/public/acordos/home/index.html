@@ -1,0 +1,367 @@
+<!-- ========================= acordos.html (Topo responsivo + "Saldo devedor" + click na linha) ========================= -->
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SaiuAcordo • Acordos e Contratos</title>
+<style>
+  /* Tema + tokens */
+  :root{
+    --bg:#0f1222; --card:#151935; --soft:#1b2042; --text:#e8ecf3; --muted:#9aa3b2; --border:#2a2f53;
+    --thead:#11162f; --row:#0e1330; --rowh:#151a3a; --shadow:0 10px 30px rgba(0,0,0,.25);
+    /* Botões (dark) */
+    --btn-primary-bg:#505A78; --btn-primary-bg-hover:#47506C; --btn-primary-text:#FFFFFF; --btn-primary-border:transparent;
+    --btn-secondary-bg:#1b2042; --btn-secondary-bg-hover:#1f2550; --btn-secondary-text:#e8ecf3; --btn-secondary-border:#2f3564;
+    /* Tipografia fluida */
+    --fs-base: clamp(13px, 1.6vw, 16px);
+    --fs-small: clamp(11px, 1.2vw, 13px);
+    --fs-h1: clamp(22px, 4.2vw, 32px);
+    --fs-h2: clamp(18px, 3.4vw, 24px);
+    --radius: 16px;
+    --chip-bg: var(--row);
+  }
+  :root[data-theme="light"]{
+    --bg:#F5F7FA; --card:#FFFFFF; --soft:#FAFBFF; --text:#1F2937; --muted:#6B7280; --border:#E5E7EB;
+    --thead:#EEF2FF; --row:#F9FAFB; --rowh:#F3F6FF; --shadow:0 8px 30px rgba(9,30,66,.06);
+    /* Botões (light) */
+    --btn-primary-bg:#4B5563; --btn-primary-bg-hover:#434C59; --btn-primary-text:#FFFFFF; --btn-primary-border:transparent;
+    --btn-secondary-bg:#EEF2F7; --btn-secondary-bg-hover:#E5EAF2; --btn-secondary-text:#1F2937; --btn-secondary-border:#CBD5E1;
+    --chip-bg:#F3F6FF;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg) 40%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;font-size:var(--fs-base)}
+  .container{max-width:1100px;margin:0 auto;padding:16px}
+  .card{background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+
+  h1{margin:0 0 8px;font-size:var(--fs-h1);line-height:1.15}
+  h2{margin:0 0 8px;font-size:var(--fs-h2);line-height:1.2}
+  .muted{color:var(--muted);font-size:var(--fs-small)}
+
+  /* Topo */
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    border:1px solid; border-radius:12px; padding:10px 14px; cursor:pointer; font-weight:700; letter-spacing:.2px;
+    transition:filter .15s ease, transform .02s ease, background-color .12s ease, border-color .12s ease;
+    font-size:var(--fs-base);
+  }
+  .btn:active{ transform:translateY(1px) }
+  .btn.primary{background:var(--btn-primary-bg);color:var(--btn-primary-text);border-color:var(--btn-primary-border)}
+  .btn.primary:hover{filter:brightness(.98);background:var(--btn-primary-bg-hover)}
+  .btn.secondary{background:var(--btn-secondary-bg);color:var(--btn-secondary-text);border-color:var(--btn-secondary-border)}
+  .btn.secondary:hover{background:var(--btn-secondary-bg-hover)}
+
+  /* Resumo do contrato (substitui os “chips”) */
+  .summary{
+    display:grid; gap:8px; margin-top:10px;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+  }
+  .summary-item{
+    background:var(--chip-bg); border:1px solid var(--border); border-radius:12px; padding:8px 10px;
+    display:flex; flex-direction:column; gap:4px; min-width:0;
+  }
+  .summary-label{font-size:var(--fs-small); color:var(--muted)}
+  .summary-value{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+  /* Tabela */
+  .table-wrap{border:1px solid var(--border);border-radius:12px;overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid var(--border);font-size:var(--fs-base);text-align:left}
+  thead th{position:sticky;top:0;background:var(--thead);z-index:1}
+  tbody tr:nth-child(even){background:var(--row)}
+  tbody tr:hover{background:var(--rowh)}
+  .money{text-align:right}
+
+  /* Tooltip */
+  .tip{position:relative;display:inline-flex;align-items:center;justify-content:center;appearance:none; padding:0;
+       width:18px;height:18px;margin-left:6px;border-radius:999px;border:1px solid var(--border);background:var(--soft);color:var(--muted);
+       font-size:12px;font-weight:700;line-height:1;cursor:help;vertical-align:middle}
+  .tip:hover,.tip:focus{background:var(--rowh);color:var(--text);outline:none}
+  .tip[data-tip]::after{
+    content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+    background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;
+    width:max(240px,24ch);box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:10;white-space:normal
+  }
+  .tip[data-tip]::before{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%) rotate(45deg);
+    width:10px;height:10px;background:var(--card);border-left:1px solid var(--border);border-top:1px solid var(--border);opacity:0;transition:opacity .12s ease;z-index:9
+  }
+  .tip:hover::after,.tip:focus::after,.tip:hover::before,.tip:focus::before{opacity:1}
+
+  /* ===================== MOBILE (<= 640px) ===================== */
+  @media (max-width:900px){
+    .summary{grid-template-columns: repeat(2, minmax(0,1fr));}
+  }
+  @media (max-width:640px){
+    :root{ --radius:12px; }
+    .toolbar{flex-direction:column; align-items:stretch}
+    .actions .btn{width:100%}
+    .summary{grid-template-columns: 1fr;}
+    .table-wrap{overflow:visible;border:none}
+    thead{display:none}
+    table, tbody, tr, td{display:block; width:100%}
+    tbody tr{background:var(--row); border:1px solid var(--border); border-radius:12px; margin-bottom:12px; padding:6px; cursor:pointer}
+    td{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px; border-bottom:1px solid var(--border)}
+    td:last-child{border-bottom:none}
+    td::before{
+      content: attr(data-th);
+      color: var(--muted);
+      font-size: var(--fs-small);
+      flex: 0 0 55%;
+      max-width: 55%;
+      white-space:normal;
+    }
+    td > *{max-width:45%}
+    td .btn{width:100%}
+    .money strong{white-space:nowrap}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ===== Topo: título + ações + resumo em grid ===== -->
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <h1>Acordos e Contratos</h1>
+          <div class="muted">Selecione um <strong>acordo ativo</strong> para ir ao <em>Escolher operação</em>.</div>
+        </div>
+        <div class="actions">
+          <!-- Voltar controlado pelo _sa-bridge -->
+          <a class="btn secondary" href="#" id="btnVoltar" data-sa-action="back">← Voltar</a>
+        </div>
+      </div>
+
+      <!-- Resumo (substitui os chips) -->
+      <div class="summary" id="summaryGrid">
+        <!-- preenchido via JS -->
+      </div>
+    </div>
+
+    <!-- ===== Grid de acordos ===== -->
+    <div class="card">
+      <h2>
+        Acordos do contrato selecionado
+        <button class="tip" type="button" aria-label="Regras de acordos"
+          data-tip="Um acordo pode englobar múltiplos contratos da mesma carteira. Cada contrato só pode ter 1 acordo ATIVO.">i</button>
+      </h2>
+      <div class="muted" id="contratoResumo" style="margin-bottom:8px">—</div>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table>
+          <thead>
+            <tr>
+              <th>Acordo</th>
+              <th>Contrato(s) no acordo</th>
+              <th>Parcelas no acordo</th>
+              <th><strong>Saldo devedor (selecionado)</strong></th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyAcordos">
+            <tr><td colspan="5">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="muted" style="margin-top:6px" id="hint"></div>
+    </div>
+
+  </div>
+
+<!-- Bridge DEVE vir antes do script local para podermos usar window.__SA -->
+<script src="/_sa-bridge.js"></script>
+
+<script>
+(function(){
+  // Inicializa tema a partir de ?theme= e configura o "Voltar" com fallback = /home-consulta
+  if (window.__SA?.initStaticPage) window.__SA.initStaticPage('/home-consulta');
+
+  /* ===== Utils ===== */
+  const fmtBRL = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const onlyDigits = s => (s||'').replace(/\D+/g,'');
+  const formatCPF = c => {
+    const d = onlyDigits(c).padStart(11,'0');
+    return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
+  };
+
+  // URL atual (mantém ?cpf= para Analytics)
+  const here = location.pathname + location.search;
+
+  /* ===== Contexto (veio de CPF) ===== */
+  let contratoCtx = {};
+  try{ contratoCtx = JSON.parse(sessionStorage.getItem('wizard.contrato')||'{}'); }catch(_){}
+
+  // Monta o resumo do topo em grid
+  const summary = document.getElementById('summaryGrid');
+  const resumoItems = [
+    { label:'Cliente', value: contratoCtx?.nomeCliente || '—' },
+    { label:'CPF', value: contratoCtx?.cpfCliente ? formatCPF(contratoCtx.cpfCliente) : '—' },
+    { label:'Contrato', value: contratoCtx?.numContrato || '—' },
+    { label:'Saldo devedor', value: fmtBRL(contratoCtx?.saldoAtual || 0) },
+  ];
+  summary.innerHTML = resumoItems.map(it => `
+    <div class="summary-item">
+      <span class="summary-label">${it.label}</span>
+      <span class="summary-value" title="${it.value}">${it.value}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('contratoResumo').textContent =
+    `Contrato ${contratoCtx?.numContrato || '—'} • Saldo devedor: ${fmtBRL(contratoCtx?.saldoAtual || 0)}`;
+
+  /* ===== Carregar payload salvo e localizar ACORDOS ATIVOS ===== */
+  let payload=null;
+  try{ payload = JSON.parse(sessionStorage.getItem('last.cpf.response')||'null'); }catch(_){}
+
+  // Variações de raiz
+  const pools=[];
+  if (payload?.result?.[0]) pools.push(payload.result[0]);
+  if (payload?.data?.result?.[0]) pools.push(payload.data.result[0]);
+  if (payload && !pools.length) pools.push(payload);
+
+  // Helpers de acordo
+  function isAcordoAtivo(a){
+    // Considera active/situacao/situacaoAcordo/status com ATIV/REGUL
+    const raw = (a?.active ?? a?.situacao ?? a?.situacaoAcordo ?? a?.status ?? '')
+      .toString().trim().toUpperCase();
+    return /ATIV|REGUL/.test(raw);
+  }
+  function contratosDoAcordo(a){
+    const ids = new Set();
+    const unico = a?.numContrato || a?.numeroContrato || a?.contrato_id || a?.contratoId || '';
+    if (unico) ids.add(String(unico));
+    const listas = []
+      .concat(Array.isArray(a?.contratos) ? a.contratos : [])
+      .concat(Array.isArray(a?.itens) ? a.itens : [])
+      .concat(Array.isArray(a?.contracts) ? a.contracts : []);
+    for (const it of listas){
+      const c = it?.numContrato || it?.numeroContrato || it?.contrato_id || it?.contratoId || it?.idContrato || '';
+      if (c) ids.add(String(c));
+    }
+    return Array.from(ids);
+  }
+  function qtdParcelasDoAcordo(a){
+    if (Array.isArray(a?.parcelas)) return a.parcelas.length;
+    if (typeof a?.qtdParcelas === 'number') return a.qtdParcelas;
+    if (Array.isArray(a?.contratos)) {
+      let soma = 0;
+      for (const it of a.contratos){
+        if (Array.isArray(it?.parcelas)) soma += it.parcelas.length;
+        else if (typeof it?.qtdParcelas === 'number') soma += it.qtdParcelas;
+      }
+      if (soma>0) return soma;
+    }
+    return 0;
+  }
+
+  const numC = String(contratoCtx?.numContrato || '');
+  const acordos=[]; const vistos=new Set();
+
+  for (const root of pools){
+    const lista = []
+      .concat(Array.isArray(root?.acordo_ativo)? root.acordo_ativo : [])
+      .concat(Array.isArray(root?.acordos)? root.acordos : []);
+    for (const a of lista){
+      if (!isAcordoAtivo(a)) continue;
+      const id = a?.acordoId || a?.id || a?.idAcordo;
+      if (!id || vistos.has(String(id))) continue;
+
+      const contratos = contratosDoAcordo(a);
+      if (!contratos.length || !contratos.includes(numC)) continue;
+
+      vistos.add(String(id));
+      acordos.push({ id, contratos, parcelas: qtdParcelasDoAcordo(a), raw: a });
+    }
+  }
+
+  /* ===== Render ===== */
+  const tbody = document.getElementById('tbodyAcordos');
+  const hint  = document.getElementById('hint');
+
+  function goEscolhaOperacao(acordoRaw){
+    try{ sessionStorage.setItem('wizard.acordo', JSON.stringify(acordoRaw)); }catch(_){}
+    if (window.__SA?.openEscolhaOperacao) {
+      // passa o returnTo COM ?cpf= para voltar certinho
+      window.__SA.openEscolhaOperacao({ returnTo: here });
+    } else {
+      // Fallback robusto (se bridge não carregou)
+      const t = (localStorage.getItem('ui.theme') || sessionStorage.getItem('ui.theme') || 'dark');
+      const u = new URL('/escolha-operacao/index.html', location.origin);
+      u.searchParams.set('theme', t);
+      u.searchParams.set('returnTo', here);
+      location.assign(u.pathname + u.search);
+    }
+  }
+
+  if (!acordos.length){
+    tbody.innerHTML = `<tr><td colspan="5">
+      Nenhum acordo <strong>ATIVO</strong> para este contrato.
+      Você pode abrir a calculadora de <a href="#" data-sa-action="gotoOriginais">Parcelas Originais</a>.
+    </td></tr>`;
+    hint.textContent = 'Dica: este grid filtra apenas acordos ATIVOS que incluam o contrato selecionado.';
+
+    // Link "Parcelas Originais" usa o bridge, se disponível
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('[data-sa-action="gotoOriginais"]');
+      if (!a) return;
+      e.preventDefault();
+      if (window.__SA?.openCalculadora) window.__SA.openCalculadora('originais', { returnTo: here });
+      else {
+        const t = (localStorage.getItem('ui.theme') || sessionStorage.getItem('ui.theme') || 'dark');
+        const u = new URL('/calculadoras/parcelas-originais/index.html', location.origin);
+        u.searchParams.set('theme', t);
+        u.searchParams.set('returnTo', here);
+        location.assign(u.pathname + u.search);
+      }
+    });
+  } else {
+    tbody.innerHTML = acordos.map(a=>`<tr data-acordo='${encodeURIComponent(JSON.stringify(a.raw))}'>
+      <td data-th="Acordo">#${a.id}</td>
+      <td data-th="Contrato(s) no acordo">${a.contratos.join(', ')}</td>
+      <td data-th="Parcelas no acordo">${a.parcelas || 0}</td>
+      <td data-th="Saldo devedor (selecionado)" class="money"><strong>${fmtBRL(contratoCtx?.saldoAtual || 0)}</strong></td>
+      <td data-th="Ação"><button class="btn primary" data-open>Escolher operação</button></td>
+    </tr>`).join('');
+
+    hint.textContent = 'Regra: cada contrato tem no máximo 1 acordo ATIVO; um acordo ATIVO pode conter múltiplos contratos.';
+
+    // Botão "Escolher operação"
+    tbody.querySelectorAll('button[data-open]').forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        const tr = btn.closest('tr[data-acordo]');
+        if (!tr) return;
+        const raw = JSON.parse(decodeURIComponent(tr.getAttribute('data-acordo')));
+        goEscolhaOperacao(raw);
+      });
+    });
+
+    // Clique na linha => mesma ação
+    tbody.addEventListener('click', (ev)=>{
+      const tr = ev.target.closest('tr[data-acordo]');
+      if (!tr || ev.target.closest('button')) return;
+      const raw = JSON.parse(decodeURIComponent(tr.getAttribute('data-acordo')));
+      goEscolhaOperacao(raw);
+    });
+  }
+
+  /* ===== Voltar (se o bridge não estiver disponível) ===== */
+  document.getElementById('btnVoltar').addEventListener('click', function(e){
+    if (window.__SA?.back) return; // bridge já cuida
+    e.preventDefault();
+    const qs = new URLSearchParams(location.search);
+    const fallback =
+      qs.get('returnTo') ||
+      sessionStorage.getItem('spa.returnTo') ||
+      localStorage.getItem('spa.returnTo') ||
+      '/home-consulta';
+    location.assign(fallback);
+  });
+})();
+</script>
+</body>
+</html>

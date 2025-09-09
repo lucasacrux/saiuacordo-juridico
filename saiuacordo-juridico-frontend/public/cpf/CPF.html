@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SaiuAcordo • Consulta por CPF</title>
+<meta name="color-scheme" content="light dark">
+<!-- garante que navega sempre a partir da raiz do site -->
+<base href="/" />
+<style>
+  :root{
+    /* Tema claro */
+    --bg:#F5F7FA; --card:#FFFFFF; --soft:#FAFBFF; --text:#1F2937; --muted:#6B7280; --border:#E5E7EB;
+    /* Botões neutros elegantes */
+    --btn-primary-bg:#4B5563; --btn-primary-bg-hover:#434C59; --btn-primary-text:#FFFFFF; --btn-primary-border:transparent;
+    --btn-secondary-bg:#EEF2F7; --btn-secondary-bg-hover:#E5EAF2; --btn-secondary-text:#1F2937; --btn-secondary-border:#CBD5E1;
+
+    --ok:#16A34A; --ok-700:#11803A; --bad:#DC2626; --warn:#B45309;
+    --thead:#EEF2FF; --row:#F9FAFB; --rowh:#F3F6FF; --input:#FFFFFF; --shadow:0 8px 30px rgba(9,30,66,.06);
+  }
+  :root[data-theme="dark"]{
+    /* Tema escuro */
+    --bg:#0f1222; --card:#151935; --soft:#1b2042; --text:#e8ecf3; --muted:#9aa3b2; --border:#2a2f53;
+    /* Botões neutros elegantes (escuro) */
+    --btn-primary-bg:#505A78; --btn-primary-bg-hover:#47506C; --btn-primary-text:#FFFFFF; --btn-primary-border:transparent;
+    --btn-secondary-bg:#1b2042; --btn-secondary-bg-hover:#1f2550; --btn-secondary-text:#e8ecf3; --btn-secondary-border:#2f3564;
+
+    --ok:#1DB954; --ok-700:#159c44; --bad:#e94b4b; --warn:#e5a100;
+    --thead:#11162f; --row:#0e1330; --rowh:#151a3a; --input:#0e132b; --shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg) 40%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+
+  .wrap{max-width:1100px;margin-inline:auto;padding:16px;display:grid;gap:12px}
+  header{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);
+    position:sticky;top:0;z-index:50;
+  }
+  .brand{display:flex;align-items:center;gap:10px}
+  .dot{width:10px;height:10px;border-radius:999px;background:linear-gradient(180deg,#6f7a96,#4B5563)}
+  h1{margin:0;font-size:16px}
+  .sub{color:var(--muted);font-size:12px;margin-top:4px}
+
+  /* Toggle Tema */
+  .theme-toggle{
+    --w:60px; --h:34px; --pad:4px;
+    width:var(--w); height:var(--h); border-radius:999px; position:relative; cursor:pointer; user-select:none;
+    background:linear-gradient(180deg, var(--soft), var(--row)); border:1px solid var(--border); box-shadow:var(--shadow);
+    display:inline-flex; align-items:center; padding:var(--pad);
+  }
+  .knob{ width:26px; height:26px; border-radius:999px; background:var(--card); border:1px solid var(--border);
+    display:grid; place-items:center; transition:transform .25s ease; }
+  .theme-toggle[data-mode="light"] .knob{ transform: translateX(0) }
+  .theme-toggle[data-mode="dark"]  .knob{ transform: translateX(100%) }
+  .icon{ width:16px; height:16px }
+
+  main{ display:grid; gap:12px }
+  .card{background:linear-gradient(180deg,var(--card),var(--soft));border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  input{
+    background:var(--input);border:1px solid var(--border);color:inherit;border-radius:12px;padding:12px 14px;min-width:220px;height:44px
+  }
+  .btn{
+    height:44px;padding:0 16px;border-radius:12px;border:1px solid;cursor:pointer;font-weight:700;letter-spacing:.2px;
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:filter .15s ease, transform .02s ease, background-color .12s ease, border-color .12s ease;
+    touch-action:manipulation;-webkit-tap-highlight-color: transparent;width:100%;
+  }
+  @media(min-width:560px){ .btn{ width:auto } }
+  .btn:active{ transform:translateY(1px) }
+  .btn[disabled]{ opacity:.6; cursor:not-allowed }
+  .btn.primary{background:var(--btn-primary-bg);color:var(--btn-primary-text);border-color:var(--btn-primary-border)}
+  .btn.primary:hover{filter:brightness(.98);background:var(--btn-primary-bg-hover)}
+  .btn.secondary{background:var(--btn-secondary-bg);color:var(--btn-secondary-text);border-color:var(--btn-secondary-border)}
+  .btn.secondary:hover{background:var(--btn-secondary-bg-hover)}
+
+  .status{min-height:22px;color:var(--muted);font-size:12px}
+  .status.warn{ color:var(--warn) } .status.bad{ color:var(--bad) }
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:var(--input);border:1px solid var(--border);color:#cbd2e1;border-radius:999px;padding:6px 10px;font-size:12px}
+
+  .statbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .stat{display:flex;align-items:center;gap:8px;background:var(--input);border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:12px}
+  .stat b{font-size:14px}
+
+  .table-wrap{border:1px solid var(--border);border-radius:12px;overflow:auto;max-height:420px;margin-top:8px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid var(--border);font-size:14px;text-align:left}
+  thead th{position:sticky;top:0;background:var(--thead);z-index:1}
+  tbody tr:nth-child(even){background:var(--row)}
+  tbody tr:hover{background:var(--rowh);cursor:pointer}
+  .money{text-align:right}
+  .muted{color:var(--muted);font-size:12px}
+  .col-sm-hide{display:table-cell}
+  @media (max-width:780px){
+    .col-sm-hide{display:none}
+    th,td{font-size:13px;padding:8px}
+    .btn--tiny{padding:6px 8px;font-size:12px;border-radius:10px}
+  }
+
+  .empty{border:1px dashed var(--border);border-radius:12px;padding:12px;text-align:center;color:var(--muted)}
+  .spinner{ width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.35); border-top-color: currentColor; animation:spin .7s linear infinite }
+  @keyframes spin { to{ transform:rotate(360deg) } }
+
+  /* Badges e Tooltip */
+  .badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:12px;background:var(--input);border:1px solid var(--border);color:var(--muted)}
+  .tip{position:relative;display:inline-flex;align-items:center;justify-content:center;appearance:none; padding:0;
+       width:18px;height:18px;border-radius:999px;border:1px solid var(--border);background:var(--input);color:var(--muted);
+       font-size:12px;font-weight:700;line-height:1;cursor:help;vertical-align:middle}
+  .tip:hover,.tip:focus{background:var(--rowh);color:var(--text);outline:none}
+  .tip[data-tip]::after{
+    content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+    background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;
+    width:max(240px,24ch);box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:10;white-space:normal
+  }
+  .tip[data-tip]::before{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%) rotate(45deg);
+    width:10px;height:10px;background:var(--card);border-left:1px solid var(--border);border-top:1px solid var(--border);opacity:0;transition:opacity .12s ease;z-index:9
+  }
+  .tip:hover::after,.tip:focus::after,.tip:hover::before,.tip:focus::before{opacity:1}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="brand">
+          <span class="dot"></span><h1>Consulta por CPF</h1>
+        </div>
+        <div class="sub">Exibimos <strong>Cliente</strong>, <strong>Resumo dos contratos</strong> e o grid de <strong>Contratos</strong>. Toque no contrato para abrir <em>acordos</em> ou use <em>Originais</em> direto.</div>
+      </div>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema" data-mode="dark" title="Alternar tema">
+        <span class="knob"><svg class="icon" viewBox="0 0 24 24" fill="currentColor" id="themeIcon"><path d="M21.64 13.02A9 9 0 1 1 11 2.36 7 7 0 1 0 21.64 13.02Z"/></svg></span>
+      </button>
+    </header>
+
+    <main>
+      <div class="card">
+        <div class="row">
+          <input id="cpf" placeholder="Digite o CPF" inputmode="numeric" maxlength="14" autocomplete="off" autofocus
+                 pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" aria-label="CPF" />
+          <button class="btn primary" id="btnConsultar" disabled><span>Consultar</span></button>
+          <button class="btn secondary" id="btnLimpar" title="Limpar"><span>Limpar</span></button>
+        </div>
+        <div class="status" id="status" aria-live="polite"></div>
+      </div>
+
+      <div class="card" id="cardCliente" style="display:none">
+        <h2>Cliente</h2>
+        <div class="chips" id="chipsCliente"></div>
+      </div>
+
+      <div class="card" id="cardResumoContratos" style="display:none">
+        <h2>Resumo dos contratos</h2>
+        <div class="statbar">
+          <div class="stat"><span>Total de contratos</span><b id="rcQtd">—</b></div>
+          <div class="stat"><span>Soma valor contratado</span><b id="rcSomaVal">—</b></div>
+          <div class="stat"><span><strong>Saldo a pagar (soma)</strong></span><b id="rcSaldoSoma">—</b></div>
+          <div class="stat col-sm-hide"><span>Último vencimento (mais recente)</span><b id="rcUltVenc">—</b></div>
+          <div class="stat col-sm-hide"><span>Média de juros a.m.</span><b id="rcJurosMed">—</b></div>
+          <div class="stat" id="rcAvisoWrap" style="display:none">
+            <span id="rcAvisoTxt" class="badge">—</span>
+            <button class="tip" type="button" aria-label="O que é pagparc?"
+              id="rcTipBtn"
+              data-tip="pagparc = saldo a pagar nominal diferente do saldo teórico (valor da parcela × parcelas em aberto). Indica pagamento parcial; use o SALDO ATUAL como base.">i</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="cardContratos" style="display:none">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h2>Contratos</h2><span class="muted" id="tagContratos"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Contrato</th>
+                <th class="col-sm-hide">Carteira</th>
+                <th class="col-sm-hide">Valor contrat.</th>
+                <th class="col-sm-hide">Parcela (R$)</th>
+                <th>Nº</th>
+                <th class="col-sm-hide">Pagas</th>
+                <th class="col-sm-hide">Últ. venc.</th>
+                <th class="col-sm-hide">Juros</th>
+                <th><strong>Saldo atual</strong></th>
+                <th style="white-space:nowrap">Aviso
+                  <button class="tip" type="button" aria-label="O que é pagparc?"
+                    data-tip="pagparc = saldo a pagar nominal diferente do saldo teórico (valor da parcela × parcelas em aberto). Indica pagamento parcial; use o SALDO ATUAL como base.">i</button>
+                </th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyContratos">
+              <tr><td colspan="11" class="muted">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="muted" style="margin-top:6px">• Toque na linha para ver <strong>acordos</strong>. • Use <strong>Originais</strong> para abrir a calculadora.</div>
+      </div>
+
+      <div id="placeholder" class="empty">Faça uma consulta pelo CPF para visualizar <b>cliente</b> e <b>contratos</b>.</div>
+    </main>
+  </div>
+
+<script>
+(function(){
+  /* ===== Tema ===== */
+  const themeBtn = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    sessionStorage.setItem('ui.theme', t);
+    themeBtn.dataset.mode = t;
+    themeIcon.innerHTML = (t==='dark')
+      ? '<path d="M21.64 13.02A9 9 0 1 1 11 2.36 7 7 0 1 0 21.64 13.02Z"/>'
+      : '<path d="M12 4.5a1 1 0 0 1 1 1V7a1 1 0 1 1-2 0V5.5a1 1 0 0 1 1-1Zm0 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.5-3.5a1 1 0 0 1 1 1v.001a1 1 0 1 1-2 0V13a1 1 0 0 1 1-1ZM12 17a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V18a1 1 0 0 1 1-1ZM4.5 12a1 1 0 0 1 1-1H7a1 1 0 1 1 0 2H5.5a1 1 0 0 1-1-1ZM6.05 6.05a1 1 0 0 1 1.414 0l1.06 1.06a1 1 0 0 1-1.414 1.415l-1.06-1.06a1 1 0 0 1 0-1.415Zm0 11.9a1 1 0 0 1 1.414 0l1.06-1.06a1 1 0 1 1 1.414 1.415l-1.06 1.06a1 1 0 0 1-1.414-1.415Zm10.486-10.486a1 1 0 0 1 1.415 1.414l-1.061 1.06a1 1 0 1 1-1.415-1.414l1.061-1.06Zm0 10.486a1 1 0 0 1 1.415 1.415l-1.061-1.06a1 1 0 0 1 1.415-1.415Z"/>';
+  }
+  (function initTheme(){
+    applyTheme(sessionStorage.getItem('ui.theme') || 'dark');
+    themeBtn.addEventListener('click', ()=> applyTheme(themeBtn.dataset.mode==='dark' ? 'light' : 'dark'));
+  })();
+
+  /* ===== Helpers ===== */
+  const $ = q => document.querySelector(q);
+  const fmtBRL = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const onlyDigits = s => (s||'').replace(/\D+/g,'');
+  const toNum = v => { if(v==null) return 0; if(typeof v==='number') return v; const n=Number(String(v).replace(/\./g,'').replace(',','.')); return isNaN(n)?0:n; };
+  const parseDate = s => { if(!s) return null; const d=new Date(s); return isNaN(d)?null:d; };
+  const fmtDate = d => d? d.toLocaleDateString('pt-BR'):'—';
+  function formatCPF(c){ const d = onlyDigits(c).padStart(11,'0'); return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'); }
+
+  /* ===== Máscara CPF (caret estável) ===== */
+  function maskCPF(raw){
+    const d = onlyDigits(raw).slice(0,11);
+    return d
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+  function setCaretByDigitIndex(el, digitIndex, formatted){
+    let seen = 0, pos = 0;
+    while (pos < formatted.length){
+      if (/\d/.test(formatted[pos])) {
+        seen++;
+        if (seen === digitIndex) { pos++; break; }
+      }
+      pos++;
+    }
+    pos = Math.min(pos, formatted.length);
+    requestAnimationFrame(() => { try{ el.setSelectionRange(pos, pos); }catch(_){} });
+  }
+  function onCPFInput(e){
+    const el = e.target;
+    const caret = el.selectionStart || 0;
+    const digitsBefore = (el.value.slice(0, caret).match(/\d/g) || []).length;
+    const digitsAll = onlyDigits(el.value).slice(0,11);
+    const formatted = maskCPF(digitsAll);
+    el.value = formatted;
+    const idx = Math.min(digitsBefore, digitsAll.length);
+    setCaretByDigitIndex(el, idx, formatted);
+    setStatus('');
+    updateConsultarState();
+  }
+
+  /* ===== API / Fallback ===== */
+  const API_URL = 'https://datahub.resolvecontas.com.br/api/pessoas';
+  let currentAbort = null;
+
+  async function fetchFromApi(cpfDigits, controller){
+    const url = new URL(API_URL);
+    url.searchParams.set('cpf', cpfDigits);
+    url.searchParams.set('_', Date.now());
+    return fetch(url.toString(), { method:'GET', cache:'no-store', signal:controller.signal, mode:'cors' });
+  }
+  async function fetchLocal(controller){
+    return fetch('/consultacpf2.json?t='+Date.now(), { method:'GET', cache:'no-store', signal:controller.signal });
+  }
+
+  /* ===== Parser (semântica mantida) ===== */
+  function getRoot(payload){
+    if (Array.isArray(payload?.result) && payload.result.length) return payload.result[0];
+    if (payload?.data && Array.isArray(payload.data?.result) && payload.data.result.length) return payload.data.result[0];
+    return payload;
+  }
+
+  function parsePayload(payload, cpfDigitado){
+    const root = getRoot(payload) || {};
+
+    // Cliente
+    const nomeCliente = root?.pessoa?.nome || root?.cliente?.nomeCliente || root?.nomeCliente || '';
+    const cpfCliente  = root?.pessoa?.cpf  || root?.cliente?.cpfCliente  || root?.cpfCliente  || cpfDigitado || '';
+
+    // Acordos ativos
+    const seenAcordoId = new Set();
+    const allAcordos = []
+      .concat(Array.isArray(root?.acordo_ativo)? root.acordo_ativo : [])
+      .concat(Array.isArray(root?.acordos)? root.acordos : []);
+    const contratosComAcordo = new Set();
+    for (const it of allAcordos){
+      const id = it.acordoId || it.id;
+      const ativo = /(ATIV|REGUL)/i.test(String(it.situacao||it.situacaoAcordo||it.status||it.active||'')); 
+      if (!ativo || !id || seenAcordoId.has(String(id))) continue;
+      seenAcordoId.add(String(id));
+      const cnum = it.numContrato || it.contrato_id || it.numeroContrato || '';
+      if (cnum) contratosComAcordo.add(String(cnum));
+    }
+
+    // Contratos
+    const contratosArr = Array.isArray(root?.contratos) ? root.contratos : [];
+    const mapContrato = new Map();
+    for (const c of contratosArr){
+      const contratoId = String(c.numeroContrato || c.numContrato || c.contrato_id || '').trim();
+      if (!contratoId || mapContrato.has(contratoId)) continue;
+
+      const valorParcela = toNum(c.valorParcela || c.ValorParcela || 0);
+      const nParcelas = Number(c.parcelasContrato || c.NumeroParcela || 0);
+      const pagas = Number(c.parcelasPagas || 0);
+      const teoricoAberto = Math.max(0, (nParcelas - pagas) * valorParcela);
+
+      const saldoApi = toNum(
+        c.saldoAPagar || c.SaldoAPagar || c.saldo_a_pagar || c.valorPendenteAmortizacao ||
+        c.valorPendente || c.saldo || c.saldoAtual || 0
+      );
+
+      const saldoAtual = saldoApi > 0 ? saldoApi : teoricoAberto;
+      const pagamentoParcial = saldoApi > 0 && saldoApi < (teoricoAberto - 0.005);
+
+      mapContrato.set(contratoId, {
+        contrato: contratoId,
+        carteira: c.nomeCarteira || c.carteira || '',
+        valorContratado: toNum(c.valorContratado || c.ValorContratado || 0),
+        valorParcela,
+        nParcelas,
+        parcelasPagas: pagas,
+        jurosMes: Number(c.taxaFinanceira || c.jurosMensais || 0) * (Number(c.taxaFinanceira||0) < 1? 100:1),
+        dataUltVenc: c.dataVencimento || c.ultimoVencimento || '',
+        saldoAtual,
+        teoricoAberto,
+        pagamentoParcial,
+        temAcordoAtivo: contratosComAcordo.has(contratoId),
+        raw: {
+          nomeCliente, cpfCliente, nomeCarteira: c.nomeCarteira || '',
+          valorContratado: toNum(c.valorContratado || c.ValorContratado || 0),
+          ValorParcela: valorParcela,
+          NumeroParcela: nParcelas,
+          ParcelasPagas: pagas,
+          dataVencimento: c.dataVencimento || c.ultimoVencimento || '',
+          numContrato: contratoId,
+          jurosMensais: Number(c.taxaFinanceira || c.jurosMensais || 0) * (Number(c.taxaFinanceira||0) < 1? 100:1),
+          saldoAtual
+        }
+      });
+    }
+
+    const contratos = Array.from(mapContrato.values());
+    return { nomeCliente, cpfCliente, contratos };
+  }
+
+  /* ===== Render ===== */
+  function paintCliente(nomeCliente, cpfCliente){
+    const chips = [];
+    if (nomeCliente) chips.push(`<span class="chip">${nomeCliente}</span>`);
+    if (cpfCliente)  chips.push(`<span class="chip">CPF ${formatCPF(cpfCliente)}</span>`);
+    $('#chipsCliente').innerHTML = chips.join('');
+    show($('#cardCliente'), chips.length>0);
+  }
+
+  function paintResumoContratos(arr){
+    const card = $('#cardResumoContratos');
+    if (!arr.length){ show(card,false); return; }
+    show(card,true);
+
+    const somaVal = arr.reduce((s,c)=> s + toNum(c.valorContratado), 0);
+    const somaSaldo = arr.reduce((s,c)=> s + toNum(c.saldoAtual), 0);
+    const juros = arr.map(c=> Number(c.jurosMes||0)).filter(x=>x>0);
+    const mediaJ = juros.length ? (juros.reduce((a,b)=>a+b,0)/juros.length) : 0;
+    const ultVencs = arr.map(c=> parseDate(c.dataUltVenc)).filter(Boolean).sort((a,b)=> b-a);
+    const qtdAvisos = arr.filter(c=> c.pagamentoParcial).length;
+
+    $('#rcQtd').textContent = String(arr.length);
+    $('#rcSomaVal').textContent = fmtBRL(somaVal);
+    $('#rcSaldoSoma').textContent = fmtBRL(somaSaldo);
+    $('#rcUltVenc').textContent = ultVencs.length? ultVencs[0].toLocaleDateString('pt-BR'):'—';
+    $('#rcJurosMed').textContent = mediaJ? mediaJ.toFixed(2)+'%':'—';
+
+    const wrap = $('#rcAvisoWrap');
+    const el = $('#rcAvisoTxt');
+    const tip = 'pagparc = saldo a pagar nominal diferente do saldo teórico (valor da parcela × parcelas em aberto). Indica pagamento parcial; use o SALDO ATUAL como base.';
+    if (qtdAvisos){
+      show(wrap,true);
+      el.className = 'badge tip';
+      el.textContent = `pagparc em ${qtdAvisos}`;
+      el.setAttribute('data-tip', tip);
+    } else {
+      show(wrap,false);
+    }
+  }
+
+  function paintContratos(arr, meta){
+    const card = $('#cardContratos');
+    const tbody = $('#tbodyContratos');
+    if (!arr.length){ show(card,false); return; }
+    show(card,true);
+    $('#tagContratos').textContent = `${arr.length} contrato(s)`;
+
+    const tip = 'pagparc = saldo a pagar nominal diferente do saldo teórico (valor da parcela × parcelas em aberto). Indica pagamento parcial; use o SALDO ATUAL como base.';
+
+    tbody.innerHTML = arr.map(c=>{
+      const payload = encodeURIComponent(JSON.stringify({
+        nomeCliente: meta?.nomeCliente,
+        cpfCliente: meta?.cpfCliente,
+        nomeCarteira: c.carteira || '',
+        valorContratado: c.valorContratado,
+        ValorParcela: c.valorParcela,
+        NumeroParcela: c.nParcelas,
+        ParcelasPagas: c.parcelasPagas,
+        dataVencimento: c.dataUltVenc,
+        numContrato: c.contrato,
+        jurosMensais: c.jurosMes,
+        saldoAtual: c.saldoAtual
+      }));
+      const aviso = c.pagamentoParcial
+        ? `<span class="badge tip" data-tip="${tip}">pagparc</span>`
+        : '<span class="muted">—</span>';
+
+      return `<tr data-contrato='${payload}'>
+        <td>${c.contrato}</td>
+        <td class="col-sm-hide">${c.carteira||'—'}</td>
+        <td class="col-sm-hide money">${c.valorContratado? fmtBRL(c.valorContratado): '—'}</td>
+        <td class="col-sm-hide money">${fmtBRL(c.valorParcela)}</td>
+        <td>${c.nParcelas||'—'}</td>
+        <td class="col-sm-hide">${c.parcelasPagas||0}</td>
+        <td class="col-sm-hide">${c.dataUltVenc? fmtDate(new Date(c.dataUltVenc)) : '—'}</td>
+        <td class="col-sm-hide">${c.jurosMes? (Number(c.jurosMes).toFixed(2)+'%'):'—'}</td>
+        <td class="money"><strong>${fmtBRL(c.saldoAtual)}</strong></td>
+        <td>${aviso}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn--tiny" data-open='${payload}' title="Ver acordos">Acordos</button>
+          <button class="btn primary btn--tiny" data-orig='${payload}' title="Abrir Parcelas Originais">Originais</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    // Linha → acordos/home (ABSOLUTO)
+    tbody.querySelectorAll('tr[data-contrato]').forEach(tr=>{
+      tr.addEventListener('click', (ev)=>{
+        if (ev.target && (ev.target.matches('button') || ev.target.closest('button'))) return;
+        const raw = decodeURIComponent(tr.getAttribute('data-contrato'));
+        const payload = JSON.parse(raw);
+        try{ sessionStorage.setItem('wizard.contrato', JSON.stringify(payload)); }catch(_){}
+        location.assign('/acordos/home/');
+      });
+    });
+    // Botão "Acordos"
+    tbody.querySelectorAll('button[data-open]').forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        const raw = decodeURIComponent(btn.getAttribute('data-open'));
+        const payload = JSON.parse(raw);
+        try{ sessionStorage.setItem('wizard.contrato', JSON.stringify(payload)); }catch(_){}
+        location.assign('/acordos/home/');
+      });
+    });
+    // Botão "Originais"
+    tbody.querySelectorAll('button[data-orig]').forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        const raw = decodeURIComponent(btn.getAttribute('data-orig'));
+        const payload = JSON.parse(raw);
+        try{
+          sessionStorage.setItem('wizard.acordo', JSON.stringify(payload));
+          sessionStorage.setItem('wizard.origem','contrato-sem-acordo');
+        }catch(_){}
+        location.assign('/calculadoras/parcelas-originais/');
+      });
+    });
+  }
+
+  function render(payload, cpfDigitado){
+    try{ sessionStorage.setItem('last.cpf.response', JSON.stringify(payload)); }catch(_){}
+    const { nomeCliente, cpfCliente, contratos } = parsePayload(payload, cpfDigitado);
+    paintCliente(nomeCliente, cpfCliente);
+    paintResumoContratos(contratos);
+    paintContratos(contratos, { nomeCliente, cpfCliente });
+    $('#placeholder').style.display = 'none';
+    const inp = $('#cpf'); 
+    if (inp && (cpfDigitado || sessionStorage.getItem('wizard.cpf'))){
+      const d = (cpfDigitado || sessionStorage.getItem('wizard.cpf') || '');
+      inp.value = maskCPF(d);
+      updateConsultarState();
+    }
+    try{ sessionStorage.setItem('wizard.cpf', onlyDigits(cpfCliente||cpfDigitado||'')); }catch(_){}
+  }
+
+  /* ===== Fluxo ===== */
+  function setLoading(on){
+    const btnConsultar = $('#btnConsultar'), btnLimpar = $('#btnLimpar'), input = $('#cpf');
+    const spin = () => `<span class="spinner" aria-hidden="true"></span>`;
+    [btnConsultar, btnLimpar, input].forEach(el=> el && (el.disabled = !!on));
+    if(on){
+      if(!btnConsultar.querySelector('.spinner')) btnConsultar.insertAdjacentHTML('afterbegin', spin());
+      if(!btnLimpar.querySelector('.spinner')) btnLimpar.insertAdjacentHTML('afterbegin', spin());
+    }else{
+      btnConsultar.querySelector('.spinner')?.remove();
+      btnLimpar.querySelector('.spinner')?.remove();
+      updateConsultarState();
+    }
+  }
+
+  async function consultarCPF(){
+    const raw = $('#cpf').value.trim();
+    const digits = onlyDigits(raw);
+    if (digits.length !== 11){ setStatus('Informe um CPF válido com 11 dígitos.','warn'); $('#cpf').focus(); return; }
+
+    // Limpa estado/placeholder
+    $('#placeholder').style.display = '';
+    show($('#cardCliente'), false);
+    show($('#cardResumoContratos'), false);
+    show($('#cardContratos'), false);
+    setStatus('Consultando...');
+
+    if(currentAbort){ currentAbort.abort(); }
+    const controller = new AbortController(); currentAbort = controller;
+    setLoading(true);
+
+    try{
+      let ok = false, data = null;
+      try{
+        const res = await fetchFromApi(digits, controller);
+        if(!res.ok) throw new Error(`API respondeu ${res.status}`);
+        data = await res.json(); ok = true;
+      }catch(e){
+        // fallback opcional p/ dev
+        const resLocal = await fetchLocal(controller);
+        if(resLocal.ok){
+          const all = await resLocal.json();
+          data = Array.isArray(all) ? (all.find(x => onlyDigits(x?.cpf || x?.pessoa?.cpf || x?.cpfCliente) === digits) || all) : all;
+          setStatus('API indisponível. Mostrando dados de teste.', 'warn');
+        }else{
+          throw e;
+        }
+      }
+      render(data, digits);
+      if(ok) setStatus('');
+    }catch(err){
+      console.error(err);
+      setStatus('Erro ao consultar (verifique URL/CORS).','bad');
+    }finally{
+      setLoading(false);
+      currentAbort = null;
+    }
+  }
+
+  /* ===== Eventos ===== */
+  $('#btnConsultar').addEventListener('click', consultarCPF);
+  $('#cpf').addEventListener('keydown', e => { if(e.key==='Enter') consultarCPF() });
+  $('#btnLimpar').addEventListener('click', () => {
+    if(currentAbort){ currentAbort.abort(); currentAbort=null; }
+    $('#cpf').value = '';
+    setStatus('');
+    $('#placeholder').style.display = '';
+    show($('#cardCliente'), false);
+    show($('#cardResumoContratos'), false);
+    show($('#cardContratos'), false);
+    try{
+      sessionStorage.removeItem('last.cpf.response');
+      sessionStorage.removeItem('wizard.cpf');
+      sessionStorage.removeItem('wizard.contrato');
+      sessionStorage.removeItem('wizard.acordo');
+      sessionStorage.removeItem('wizard.origem');
+    }catch(_){}
+    $('#cpf').focus();
+    updateConsultarState();
+  });
+
+  // Máscara e habilitação do botão
+  const cpfInput = $('#cpf');
+  cpfInput.addEventListener('input', onCPFInput);
+  cpfInput.addEventListener('paste', () => setTimeout(() => onCPFInput({ target: cpfInput }), 0));
+
+  function updateConsultarState(){
+    const ok = onlyDigits($('#cpf').value).length === 11;
+    const btn = $('#btnConsultar');
+    if (btn) btn.disabled = !ok;
+  }
+  updateConsultarState();
+
+  // Auto-restore
+  (function autorun(){
+    const saved = sessionStorage.getItem('last.cpf.response');
+    const cpf = sessionStorage.getItem('wizard.cpf');
+    if (saved){
+      try{ render(JSON.parse(saved), cpf); }catch(_){}
+    }
+  })();
+
+  /* ===== Utils UI ===== */
+  function setStatus(s,cls){ const el = $('#status'); el.textContent = s||''; el.className='status'+(cls?` ${cls}`:''); }
+  function show(el, on=true){ el.style.display = on? 'block':'none' }
+
+})();
+</script>
+</body>
+</html>

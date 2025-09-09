@@ -1,0 +1,41 @@
+{
+  "name": "saiuacordo-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend mock do SaiuAcordo para integração TJSP (Express + Supabase), com dependências futuras do crawler.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "scrape:one": "node scripts/scrape_one.js",
+    "worker": "node worker.js",
+    "worker:once": "node worker.js --once 0006275-72.2023.8.26.0320",
+    "worker:all": "node worker.js --all"
+  },
+  "engines": {
+    "node": ">=18.18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.0",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "googleapis": "^131.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "p-limit": "^5.0.0",
+    "playwright": "^1.55.0",
+    "zod": "^3.25.76"
+  },
+  "keywords": [
+    "express",
+    "supabase",
+    "tjsp",
+    "crawler",
+    "esaj"
+  ],
+  "author": "",
+  "license": "UNLICENSED"
+}

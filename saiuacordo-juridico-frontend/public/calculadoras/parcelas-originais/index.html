@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SaiuAcordo • Calculadora (Parcelas Originais)</title>
+
+<!-- Tema Claro (original) + overrides para Dark, sem mexer no visual do claro -->
+<style>
+  :root{
+    --bg:#F5F7FA; --card:#FFFFFF; --soft:#FAFBFF; --text:#1F2937; --muted:#6B7280; --border:#E5E7EB;
+    --brand-ink:#070c7b; --brand:#0B5ED7; --brand-700:#0848A8;
+    --ok:#16A34A; --ok-700:#11803A; --warn:#B45309; --bad:#DC2626;
+    --thead:#EEF2FF; --row:#F9FAFB; --row-hover:#F3F6FF; --focus:#93C5FD; --shadow:0 8px 30px rgba(9,30,66,.06);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1222; --card:#151935; --soft:#1b2042; --text:#e8ecf3; --muted:#9aa3b2; --border:#2a2f53;
+    --brand-ink:#AFC7FF; --brand:#505A78; --brand-700:#47506C;
+    --ok:#1DB954; --ok-700:#159c44; --warn:#e5a100; --bad:#e94b4b;
+    --thead:#11162f; --row:#0e1330; --row-hover:#151a3a; --focus:#2f3564; --shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  .container{max-width:1100px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+  h1,h2,h3{margin:0 0 8px;color:var(--brand-ink)}
+  .hint{color:var(--muted);font-size:12px}
+
+  .btn{border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-700)}
+  .btn-outline{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+  .btn-outline:hover{background:rgba(11,94,215,.06)}
+  .btn-ghost{background:transparent;color:var(--brand);border:1px dashed var(--brand)}
+
+  .form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-size:12px;color:var(--muted)}
+  input,select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:12px;min-width:140px}
+  :focus{outline:2px solid var(--focus);outline-offset:2px;border-radius:10px}
+
+  /* Tabelas */
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:center;font-size:14px}
+  thead th{position:sticky;top:0;background:var(--thead);z-index:1}
+  tbody tr:nth-child(even){background:var(--row)}
+  tbody tr:hover{background:var(--row-hover)}
+  .money{text-align:right}
+  .table-wrap{overflow:auto;max-height:380px;border:1px solid var(--border);border-radius:12px; background:var(--card)}
+  .rowclick{cursor:pointer}
+  .selected{outline:2px solid var(--brand);outline-offset:-2px}
+
+  /* Stats / Resumos */
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:6px}
+  .stat{background:var(--soft);border:1px solid var(--border);border-radius:12px;padding:12px}
+  .stat span{display:block;color:var(--muted);font-size:12px}
+  .stat strong{display:block;margin-top:4px;font-size:16px}
+
+  /* Chips resumo topo */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .chip{background:var(--soft);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--text)}
+
+  /* Tooltips acessíveis */
+  .has-tip{position:relative}
+  .has-tip[data-tip]:hover::after,.has-tip[data-tip]:focus-visible::after{
+    content:attr(data-tip); position:absolute; left:50%; transform:translateX(-50%);
+    bottom:calc(100% + 8px); background:#111; color:#fff; padding:6px 8px; font-size:12px;
+    border-radius:8px; white-space:nowrap; pointer-events:none; z-index:10;
+  }
+
+  /* Bandeiras */
+  .tag-ok{color:var(--ok)} .tag-warn{color:var(--warn)} .tag-bad{color:var(--bad)}
+
+  /* Mobile */
+  @media (max-width:700px){
+    .container{padding:12px}
+    .form-row{flex-direction:column;align-items:stretch}
+    .btn{width:100%}
+    table{min-width:840px}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Toolbar -->
+    <div class="card">
+      <div class="form-row" style="justify-content:space-between">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline" id="btnSelecionarOp">← Selecionar operação</button>
+          <button class="btn btn-outline" id="btnNovaBusca">← Nova busca por CPF</button>
+        </div>
+        <div class="hint" id="toolbarInfo"></div>
+      </div>
+    </div>
+
+    <!-- Resumo bonito do contrato original -->
+    <div class="card">
+      <h2>Contrato original</h2>
+      <div class="chips" id="resumoContratoChips"></div>
+      <div class="stats" id="statsContrato">
+        <div class="stat"><span>Valor contratado</span><strong id="valContratado">—</strong></div>
+        <div class="stat"><span>Valor parcela original</span><strong id="valParcela">—</strong></div>
+        <div class="stat"><span>Parcelas (total/pagas/abertas)</span><strong id="qtds">—</strong></div>
+        <div class="stat"><span>Juros do contrato (nominal)</span><strong id="jurosContrato">—</strong></div>
+      </div>
+    </div>
+
+    <!-- Opções de encargos / alvo -->
+    <div class="card">
+      <h2>Configuração de encargos</h2>
+      <div class="form-row">
+        <div class="field has-tip" data-tip="Taxa de juros nominal contratada. Será convertida para taxa diária efetiva para juros remuneratórios compostos.">
+          <label for="jurosMensais">Juros do contrato (% a.m.)</label>
+          <input type="number" id="jurosMensais" step="0.01" min="0" placeholder="Ex.: 3,21" />
+        </div>
+        <div class="field has-tip" data-tip="Mora padrão 1% a.m. aplicada de forma simples ao dia (mora/30 * dias). Pode ajustar.">
+          <label for="moraMensal">Mora (% a.m.)</label>
+          <input type="number" id="moraMensal" step="0.01" min="0" value="1.00" />
+        </div>
+        <div class="field has-tip" data-tip="Multa única aplicada na data do atraso.">
+          <label for="multaPct">Multa (% única)</label>
+          <input type="number" id="multaPct" step="0.01" min="0" value="2.00" />
+        </div>
+        <div class="field">
+          <label>Incluir no cálculo</label>
+          <div class="form-row" style="gap:12px">
+            <label><input type="checkbox" id="chkJuros" checked> Juros</label>
+            <label><input type="checkbox" id="chkMora" checked> Mora</label>
+            <label><input type="checkbox" id="chkMulta" checked> Multa</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:6px">
+        <div class="field">
+          <label>Aplicar encargos em</label>
+          <div class="form-row" style="gap:10px">
+            <label><input type="radio" name="alvo" value="selecionadas" checked> Selecionadas</label>
+            <label><input type="radio" name="alvo" value="todas"> Todas</label>
+            <label><input type="radio" name="alvo" value="prescritas"> Somente prescritas</label>
+            <label><input type="radio" name="alvo" value="naoPrescritas"> Somente não prescritas</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <div class="form-row" style="gap:8px">
+            <button class="btn" id="btnCalcular">Calcular</button>
+            <button class="btn btn-ghost" id="btnReset">Limpar cálculo</button>
+          </div>
+        </div>
+      </div>
+      <div class="hint">Dica: clique em uma linha da tabela para <strong>selecionar/desselecionar</strong> a parcela individualmente e depois clique em <em>Calcular</em>.</div>
+    </div>
+
+    <!-- Grid de parcelas originais presumidas -->
+    <div class="card">
+      <h2>Parcelamento original presumido</h2>
+
+      <div class="form-row" style="justify-content:space-between;align-items:center">
+        <div class="form-row" style="gap:8px">
+          <button class="btn btn-outline" id="btnSelTodas">Selecionar todas</button>
+          <button class="btn btn-outline" id="btnSelNenhuma">Limpar seleção</button>
+          <button class="btn btn-outline" id="btnSelPrescritas">Só prescritas</button>
+          <button class="btn btn-outline" id="btnSelNaoPrescritas">Só não prescritas</button>
+        </div>
+        <div class="hint" id="gridHint"></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vencimento</th>
+              <th>Valor original</th>
+              <th>Valor pago</th>
+              <th>Pago?</th>
+              <th>Dias em atraso</th>
+              <th>Data prescrição</th>
+              <th>Prescrita?</th>
+              <th>Selecionar</th>
+              <th>Atualizado (R$)</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyParcelas">
+            <tr><td colspan="10" style="text-align:left;padding:14px">Carregando contrato...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="hint" id="resumoTabela"></div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="card">
+      <h2>Resumo do cálculo</h2>
+      <div class="stats" id="statsResultado">
+        <div class="stat"><span>Parcelas consideradas</span><strong id="resQtd">—</strong></div>
+        <div class="stat"><span>Base (soma original remanesc.)</span><strong id="resBase">—</strong></div>
+        <div class="stat"><span>Encargos (juros + mora + multa)</span><strong id="resEncargos">—</strong></div>
+        <div class="stat"><span>Total atualizado</span><strong id="resTotal">—</strong></div>
+      </div>
+      <div class="hint" id="resBreakdown"></div>
+    </div>
+
+    <!-- (Opcional) Entrada manual/rápida de contrato -->
+    <div class="card">
+      <h3>Entrada manual (opcional)</h3>
+      <div class="form-row">
+        <div class="field"><label>Nome</label><input id="inNome" placeholder="Nome do Cliente"></div>
+        <div class="field"><label>CPF</label><input id="inCPF" placeholder="00000000000" inputmode="numeric" maxlength="11"></div>
+        <div class="field"><label>Carteira</label><input id="inCarteira" placeholder="Open Co/Geru"></div>
+      </div>
+      <div class="form-row" style="margin-top:6px">
+        <div class="field"><label>Valor contratado (R$)</label><input id="inValContr" placeholder="49970,18"></div>
+        <div class="field"><label>Valor parcela original (R$)</label><input id="inValParcela" placeholder="3739,64"></div>
+        <div class="field"><label>Parcelas do contrato</label><input type="number" id="inNParcelas" placeholder="18"></div>
+        <div class="field"><label>Parcelas pagas</label><input type="number" id="inNPagas" placeholder="5"></div>
+      </div>
+      <div class="form-row" style="margin-top:6px">
+        <div class="field"><label>Data da contratação</label><input type="date" id="inDataContr"></div>
+        <div class="field"><label>Último vencimento (parcela N)</label><input type="date" id="inDataUltVenc"></div>
+        <div class="field"><label>Juros do contrato (% a.m.)</label><input type="number" id="inJurosMes" step="0.01" placeholder="3,21"></div>
+        <div class="field"><label>Carregar exemplo</label>
+          <button class="btn btn-outline" id="btnExemplo">Usar dados de teste</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:6px">
+        <button class="btn" id="btnAplicarManual">Aplicar ao grid</button>
+        <div class="hint">Você pode preencher apenas os campos essenciais (valor da parcela, nº de parcelas e último vencimento). Os demais são opcionais.</div>
+      </div>
+    </div>
+
+  </div>
+
+<!-- ===== Bridge DEVE vir antes dos scripts locais ===== -->
+<script src="/_sa-bridge.js"></script>
+
+<!-- ===================== SEU SCRIPT ORIGINAL (INALTERADO) ===================== -->
+<script>
+(function(){
+  /* ===== Navegação ===== */
+  document.getElementById('btnNovaBusca').addEventListener('click', ()=>{
+    try{ sessionStorage.removeItem('wizard.cpf'); sessionStorage.removeItem('wizard.acordo'); }catch(e){}
+    location.href = 'CPF.html';
+  });
+  (function(){
+    function goBack(){ try{ sessionStorage.removeItem('wizard.operacao'); }catch(e){} location.href='escolha-operacao.html'; }
+    const b=document.getElementById('btnSelecionarOp'); if(b) b.addEventListener('click', goBack);
+  })();
+
+  /* ===== Helpers ===== */
+  const fmtBRL = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const toNum = v => { if (v == null) return 0; if (typeof v === 'number') return v; const n = Number(String(v).replace(/\./g,'').replace(',', '.')); return isNaN(n) ? 0 : n; };
+  function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
+  function dateOnly(d){ if(!d) return null; const n = (d instanceof Date)? d : new Date(d); if(isNaN(n)) return null; return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function addMonths(d, m){ const dt = dateOnly(d); if(!dt) return null; const day = dt.getDate(); const res = new Date(dt.getFullYear(), dt.getMonth()+m, 1); const last = new Date(res.getFullYear(), res.getMonth()+1, 0).getDate(); res.setDate(Math.min(day, last)); return res; }
+  const MS = 24*60*60*1000; const today = dateOnly(new Date());
+  function diffDays(a,b){ return Math.floor((dateOnly(a)-dateOnly(b))/MS); }
+
+  /* ===== Estado ===== */
+  let contrato = null; // {nome, cpf, carteira, valorContratado, valorParcela, nParcelas, nPagas, jurosMes, dataContratacao, dataUltVenc}
+  let grid = []; // [{i, venc, valor, pago, valorPago, diasAtraso, dataPresc, prescrito, selecionado, atualizado, breakdown }]
+
+  /* ===== Carregar do contexto (sessionStorage) ===== */
+  function tryHydrateFromContext(){
+    let acordo = {};
+    try{ acordo = JSON.parse(sessionStorage.getItem('wizard.acordo')||'{}'); }catch(_){acordo={};}
+
+    // Scan sessionStorage por payloads que contenham contratos com numeroContrato compatível
+    function scanForContrato(numContrato){
+      for (let i=0;i<sessionStorage.length;i++){
+        const k = sessionStorage.key(i); if (k==='wizard.acordo') continue;
+        try{
+          const raw = sessionStorage.getItem(k); const obj = JSON.parse(raw);
+          const pools = [];
+          if (Array.isArray(obj)) pools.push(...obj);
+          if (Array.isArray(obj?.result)) pools.push(...obj.result);
+          if (Array.isArray(obj?.data?.result)) pools.push(...obj.data.result);
+          if (Array.isArray(obj?.data)) pools.push(...obj.data);
+          if (Array.isArray(obj?.contratos)) pools.push({contratos: obj.contratos});
+          // Merge possíveis
+          const candidatos = [];
+          for (const p of pools){
+            if (!p) continue;
+            if (Array.isArray(p?.contratos)) candidatos.push(...p.contratos);
+            if (Array.isArray(p?.acordos)) candidatos.push(...p.acordos);
+          }
+          const hitC = candidatos.find(c => String(c?.numeroContrato||c?.numContrato||'') === String(numContrato||''));
+          if (hitC && (hitC.numeroContrato || hitC.numContrato || hitC.parcelasContrato)){
+            return {
+              nome: acordo?.nomeCliente || hitC?.nomeCliente || '',
+              cpf: acordo?.cpfCliente || hitC?.cpfCliente || '',
+              carteira: hitC?.nomeCarteira || acordo?.carteira || '',
+              valorContratado: toNum(hitC?.valorContratado),
+              valorParcela: toNum(hitC?.valorParcela || acordo?.ValorParcela),
+              nParcelas: Number(hitC?.parcelasContrato || acordo?.NumeroParcela || acordo?.qtdParcelas || 0),
+              nPagas: Number(hitC?.parcelasPagas || 0),
+              jurosMes: Number(hitC?.taxaFinanceira || 0) * 100, // se vier fração a.m.
+              dataContratacao: hitC?.dataContratacao || '',
+              dataUltVenc: hitC?.dataVencimento || ''
+            };
+          }
+        }catch(_){/* ignore */}
+      }
+      return null;
+    }
+
+    let guessed = null;
+    if (acordo && (acordo.numContrato || acordo.contrato_id || acordo.numeroContrato)){
+      guessed = scanForContrato(acordo.numContrato || acordo.contrato_id || acordo.numeroContrato);
+    }
+
+    // Como fallback, usa campos do próprio acordo quando fizer sentido
+    if (!guessed && acordo && acordo.NumeroParcela && acordo.ValorParcela){
+      guessed = {
+        nome: acordo?.nomeCliente || '',
+        cpf: acordo?.cpfCliente || '',
+        carteira: acordo?.nomeCarteira || '',
+        valorContratado: toNum(acordo?.valor) || 0,
+        valorParcela: toNum(acordo?.ValorParcela),
+        nParcelas: Number(acordo?.NumeroParcela),
+        nPagas: 0,
+        jurosMes: 0,
+        dataContratacao: acordo?.dataCriacao || '',
+        dataUltVenc: acordo?.dataVencimento || ''
+      };
+    }
+    return guessed;
+  }
+
+  /* ===== Construção do grid (presumir cronograma) ===== */
+  function buildGridFromContrato(c){
+    if (!c || !c.valorParcela || !c.nParcelas || !c.dataUltVenc) return [];
+    const n = Number(c.nParcelas);
+    const lastDue = dateOnly(c.dataUltVenc);
+    const arr = [];
+    for (let i=1;i<=n;i++){
+      const venc = addMonths(lastDue, -(n-i));
+      const pago = (i <= Number(c.nPagas||0));
+      const valor = toNum(c.valorParcela);
+      const valorPago = pago ? valor : 0;
+      const dias = Math.max(0, diffDays(today, venc));
+      const dataPresc = addMonths(venc, 60);
+      const prescrito = today > dataPresc; // prescreve quando HOJE > venc+60m
+      arr.push({ i, venc, valor, pago, valorPago, diasAtraso:dias, dataPresc, prescrito, selecionado:false, atualizado:0, breakdown:null });
+    }
+    return arr;
+  }
+
+  /* ===== UI Resumo do contrato ===== */
+  function paintContratoSummary(){
+    if (!contrato){
+      document.getElementById('resumoContratoChips').innerHTML = '<span class="chip tag-warn">Preencha os dados manualmente ou selecione um acordo antes</span>';
+      return;
+    }
+    const chips = [];
+    if (contrato.nome) chips.push(`<span class="chip">${contrato.nome}</span>`);
+    if (contrato.cpf) chips.push(`<span class="chip">CPF ${formatCPF(contrato.cpf)}</span>`);
+    if (contrato.carteira) chips.push(`<span class="chip">Carteira ${contrato.carteira}</span>`);
+    if (contrato.dataContratacao) chips.push(`<span class="chip">Contratação ${fmtDate(contrato.dataContratacao)}</span>`);
+    if (contrato.dataUltVenc) chips.push(`<span class="chip">Último venc. ${fmtDate(contrato.dataUltVenc)}</span>`);
+    document.getElementById('resumoContratoChips').innerHTML = chips.join('');
+
+    document.getElementById('valContratado').textContent = contrato.valorContratado? fmtBRL(contrato.valorContratado) : '—';
+    document.getElementById('valParcela').textContent = contrato.valorParcela? fmtBRL(contrato.valorParcela) : '—';
+    document.getElementById('qtds').textContent = contrato.nParcelas? `${contrato.nParcelas} / ${contrato.nPagas||0} / ${(contrato.nParcelas - (contrato.nPagas||0))}` : '—';
+    const jm = Number(contrato.jurosMes||0);
+    document.getElementById('jurosContrato').textContent = jm? `${jm.toFixed(2)}% a.m.` : '—';
+
+    // Preenche input padrão de encargos
+    const jInput = document.getElementById('jurosMensais');
+    if (jm && !jInput.value) jInput.value = jm.toFixed(2);
+
+    // Toolbar info: tenta buscar nº do contrato do wizard.acordo
+    let idContrato = '';
+    try{
+      const ac = JSON.parse(sessionStorage.getItem('wizard.acordo')||'{}');
+      idContrato = ac?.numContrato || ac?.contrato_id || ac?.numeroContrato || '';
+    }catch(_){}
+    if (!idContrato && window?.wizard?.idContrato) idContrato = window.wizard.idContrato;
+    document.getElementById('toolbarInfo').textContent = `Contrato: ${idContrato || '—'}`;
+  }
+
+  function fmtDate(d){ const x = dateOnly(d); return x? x.toLocaleDateString('pt-BR'): '—'; }
+  function formatCPF(c){ const d = onlyDigits(c).padStart(11,'0'); return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'); }
+
+  /* ===== Render Grid ===== */
+  function renderGrid(){
+    const tbody = document.getElementById('tbodyParcelas');
+    if (!grid.length){ tbody.innerHTML = '<tr><td colspan="10" style="text-align:left;padding:14px">Defina os dados do contrato acima para montar o cronograma.</td></tr>'; return; }
+    let html='';
+    for(const r of grid){
+      const rowCls = 'rowclick' + (r.selecionado? ' selected':'');
+      html += `<tr class="${rowCls}" data-idx="${r.i}">
+        <td>${r.i}</td>
+        <td>${fmtDate(r.venc)}</td>
+        <td class="money">${fmtBRL(r.valor)}</td>
+        <td><input data-valor-pago="${r.i}" value="${r.valorPago? String(r.valorPago).replace('.',','):''}" style="width:120px;text-align:right" placeholder="0,00"></td>
+        <td><input type="checkbox" data-pago="${r.i}" ${r.pago? 'checked':''}></td>
+        <td>${r.diasAtraso}</td>
+        <td>${fmtDate(r.dataPresc)}</td>
+        <td>${r.prescrito? '<span class="tag-bad">Sim</span>':'<span class="tag-ok">Não</span>'}</td>
+        <td><input type="checkbox" data-sel="${r.i}" ${r.selecionado? 'checked':''}></td>
+        <td class="money" id="upd-${r.i}">${r.atualizado? fmtBRL(r.atualizado): '—'}</td>
+      </tr>`;
+    }
+    tbody.innerHTML = html;
+
+    // Bind row click (toggle seleção)
+    tbody.querySelectorAll('tr.rowclick').forEach(tr=>{
+      tr.addEventListener('click', (e)=>{
+        const idx = Number(tr.getAttribute('data-idx'));
+        const targetCell = e.target;
+        if (targetCell.tagName === 'INPUT') return;
+        toggleSelecionado(idx);
+      });
+    });
+
+    // Binds
+    tbody.querySelectorAll('input[data-sel]').forEach(ch=>{
+      ch.addEventListener('change', ()=>{
+        const idx = Number(ch.getAttribute('data-sel')); setSelecionado(idx, ch.checked);
+      });
+    });
+    tbody.querySelectorAll('input[data-pago]').forEach(ch=>{
+      ch.addEventListener('change', ()=>{
+        const idx = Number(ch.getAttribute('data-pago'));
+        const row = grid[idx-1];
+        row.pago = ch.checked; if (row.pago) { row.valorPago = row.valor; } else { if (row.valorPago >= row.valor) row.valorPago = 0; }
+        renderGrid();
+      });
+    });
+    tbody.querySelectorAll('input[data-valor-pago]').forEach(inp=>{
+      inp.addEventListener('blur', ()=>{
+        const idx = Number(inp.getAttribute('data-valor-pago'));
+        const v = toNum(inp.value);
+        const row = grid[idx-1];
+        row.valorPago = Math.max(0, Math.min(row.valor, v));
+        row.pago = row.valorPago >= row.valor - 1e-6;
+        renderGrid();
+      });
+    });
+
+    paintGridHint();
+  }
+
+  function paintGridHint(){
+    const sel = grid.filter(x=>x.selecionado).length;
+    const presc = grid.filter(x=>x.prescrito).length;
+    const n = grid.length;
+    document.getElementById('gridHint').textContent = `${sel} selecionada(s) • ${presc}/${n} prescrita(s)`;
+    document.getElementById('resumoTabela').textContent = `Hoje: ${fmtDate(today)} • Pressione Calcular para aplicar os encargos na configuração acima.`;
+  }
+
+  function toggleSelecionado(i){ const r = grid[i-1]; if(!r) return; r.selecionado = !r.selecionado; renderGrid(); }
+  function setSelecionado(i, val){ const r = grid[i-1]; if(!r) return; r.selecionado = !!val; renderGrid(); }
+
+  // Seletores rápidos
+  document.getElementById('btnSelTodas').onclick = ()=>{ grid.forEach(r=>r.selecionado=true); renderGrid(); };
+  document.getElementById('btnSelNenhuma').onclick = ()=>{ grid.forEach(r=>r.selecionado=false); renderGrid(); };
+  document.getElementById('btnSelPrescritas').onclick = ()=>{ grid.forEach(r=>r.selecionado=r.prescrito); renderGrid(); };
+  document.getElementById('btnSelNaoPrescritas').onclick = ()=>{ grid.forEach(r=>r.selecionado=!r.prescrito); renderGrid(); };
+
+  /* ===== Motor de Encargos ===== */
+  function getEncargosCfg(){
+    const jm = Number(document.getElementById('jurosMensais').value || contrato?.jurosMes || 0) / 100;
+    const mora = Number(document.getElementById('moraMensal').value || 1) / 100;
+    const multa = Number(document.getElementById('multaPct').value || 2) / 100;
+    const useJ = document.getElementById('chkJuros').checked;
+    const useMora = document.getElementById('chkMora').checked;
+    const useMulta = document.getElementById('chkMulta').checked;
+    const alvo = document.querySelector('input[name="alvo"]:checked')?.value || 'selecionadas';
+    const i_d = Math.pow(1 + jm, 1/30) - 1;
+    return {jm, i_d, mora, multa, useJ, useMora, useMulta, alvo};
+  }
+
+  function shouldApply(row, alvo){
+    if (alvo === 'todas') return true;
+    if (alvo === 'prescritas') return row.prescrito;
+    if (alvo === 'naoPrescritas') return !row.prescrito;
+    return !!row.selecionado;
+  }
+
+  function calcular(){
+    if (!grid.length){ alert('Monte o cronograma primeiro (preencha os dados do contrato).'); return; }
+    const cfg = getEncargosCfg();
+
+    let somaBase=0, somaJ=0, somaMora=0, somaMulta=0, somaTot=0, q=0;
+
+    for(const r of grid){
+      const outstanding = Math.max(0, r.valor - (r.valorPago||0));
+      let atualizado = 0; let bj=0,bm=0,bt=0;
+      if (outstanding>0 && r.diasAtraso>0 && shouldApply(r, cfg.alvo)){
+        const juros = cfg.useJ ? outstanding * (Math.pow(1 + cfg.i_d, r.diasAtraso) - 1) : 0;
+        const moraSimples = cfg.useMora ? outstanding * (cfg.mora/30) * r.diasAtraso : 0;
+        const multa = cfg.useMulta ? outstanding * cfg.multa : 0;
+        atualizado = outstanding + juros + moraSimples + multa;
+        bj=juros; bm=moraSimples; bt=multa;
+        somaBase += outstanding; somaJ += juros; somaMora += moraSimples; somaMulta += multa; somaTot += atualizado; q++;
+      } else {
+        atualizado = outstanding;
+        somaBase += outstanding; somaTot += outstanding;
+      }
+      r.atualizado = atualizado; r.breakdown = {juros:bj, mora:bm, multa:bt, base:outstanding};
+    }
+
+    for (const r of grid){ const cell = document.getElementById(`upd-${r.i}`); if(cell) cell.textContent = r.atualizado? fmtBRL(r.atualizado): '—'; }
+    document.getElementById('resQtd').textContent = q ? `${q} parcela(s)` : `${grid.length} (sem encargos)`;
+    document.getElementById('resBase').textContent = fmtBRL(somaBase);
+    document.getElementById('resEncargos').textContent = fmtBRL(somaJ + somaMora + somaMulta);
+    document.getElementById('resTotal').textContent = fmtBRL(somaTot);
+    document.getElementById('resBreakdown').innerHTML = `Juros: <strong>${fmtBRL(somaJ)}</strong> • Mora: <strong>${fmtBRL(somaMora)}</strong> • Multa: <strong>${fmtBRL(somaMulta)}</strong>`;
+  }
+
+  document.getElementById('btnCalcular').addEventListener('click', calcular);
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    grid.forEach(r=>{ r.atualizado=0; r.breakdown=null; });
+    renderGrid();
+    document.getElementById('resQtd').textContent = '—';
+    document.getElementById('resBase').textContent = '—';
+    document.getElementById('resEncargos').textContent = '—';
+    document.getElementById('resTotal').textContent = '—';
+    document.getElementById('resBreakdown').textContent = '';
+  });
+
+  /* ===== Entrada manual ===== */
+  document.getElementById('btnExemplo').addEventListener('click', ()=>{
+    document.getElementById('inNome').value = 'Gustavo Kussama Pellegrini';
+    document.getElementById('inCPF').value = '27321599809';
+    document.getElementById('inCarteira').value = 'Open Co/Geru';
+    document.getElementById('inValContr').value = '49.970,19';
+    document.getElementById('inValParcela').value = '3.739,64';
+    document.getElementById('inNParcelas').value = 18;
+    document.getElementById('inNPagas').value = 5;
+    document.getElementById('inDataContr').value = '2019-06-10';
+    document.getElementById('inDataUltVenc').value = '2020-11-10';
+    document.getElementById('inJurosMes').value = '3.21';
+  });
+
+  document.getElementById('btnAplicarManual').addEventListener('click', ()=>{
+    const c = {
+      nome: document.getElementById('inNome').value.trim(),
+      cpf: document.getElementById('inCPF').value.trim(),
+      carteira: document.getElementById('inCarteira').value.trim(),
+      valorContratado: toNum(document.getElementById('inValContr').value),
+      valorParcela: toNum(document.getElementById('inValParcela').value),
+      nParcelas: Number(document.getElementById('inNParcelas').value||0),
+      nPagas: Number(document.getElementById('inNPagas').value||0),
+      dataContratacao: document.getElementById('inDataContr').value,
+      dataUltVenc: document.getElementById('inDataUltVenc').value,
+      jurosMes: Number(document.getElementById('inJurosMes').value||0)
+    };
+    if (!c.valorParcela || !c.nParcelas || !c.dataUltVenc){
+      alert('Preencha pelo menos: Valor da parcela, Nº de parcelas e Último vencimento.'); return; }
+    contrato = c; grid = buildGridFromContrato(contrato); paintContratoSummary(); renderGrid();
+  });
+
+  /* ===== Inicialização automática por contexto ===== */
+  contrato = tryHydrateFromContext();
+  if (contrato){ grid = buildGridFromContrato(contrato); }
+  paintContratoSummary();
+  renderGrid();
+
+})();
+</script>
+
+<!-- ===================== BRIDGE: tema + back universal (APENAS BOTÕES) ===================== -->
+<script>
+(function(){
+  /* Tema herdado de ?theme= ou ui.theme (sem tocar no seu layout claro) */
+  const qs = new URLSearchParams(location.search);
+  const theme = (qs.get('theme') || sessionStorage.getItem('ui.theme') || localStorage.getItem('ui.theme') || 'light').toLowerCase();
+  document.documentElement.setAttribute('data-theme', theme);
+  try{
+    sessionStorage.setItem('ui.theme', theme);
+    localStorage.setItem('ui.theme', theme);
+  }catch(_){}
+
+  /* Normaliza cadeia de returnTo (mantém níveis internos percent-encoded) */
+  function normalizeReturnTo(rt){
+    if (!rt) return '';
+    try{
+      const u = new URL(rt, location.origin);
+      // não decodificamos; só garantimos pathname + search
+      return u.pathname + u.search + (u.hash||'');
+    }catch(_){
+      return rt; // pode ser relativo
+    }
+  }
+
+  /* Resolve o destino da etapa anterior (escolha-operacao) para QUALQUER fluxo */
+  function resolvePrev(){
+    const q = new URLSearchParams(location.search);
+    const fromQS  = q.get('returnTo');
+    if (fromQS) return normalizeReturnTo(fromQS);
+
+    const fromStore = sessionStorage.getItem('spa.returnTo') || localStorage.getItem('spa.returnTo');
+    if (fromStore) return normalizeReturnTo(fromStore);
+
+    // tenta usar o referrer quando veio diretamente da escolha-operacao
+    try{
+      if (document.referrer){
+        const r = new URL(document.referrer);
+        if (/\/escolha-?operacao\//i.test(r.pathname)){
+          return r.pathname + r.search;
+        }
+      }
+    }catch(_){}
+
+    // Fallback robusto: constrói escolha-operacao com theme e, se possível, encadeia acordos->home-consulta
+    const choose = new URL('/escolha-operacao/index.html', location.origin);
+    choose.searchParams.set('theme', theme);
+
+    // encadeia acordos como returnTo da escolha, se tivermos cpf/contrato
+    let cpf='', contrato='';
+    try{
+      const wizC = JSON.parse(sessionStorage.getItem('wizard.contrato')||'{}');
+      cpf = (wizC.cpfCliente || '').toString();
+      contrato = (wizC.numContrato || wizC.numeroContrato || wizC.contrato_id || '').toString();
+    }catch(_){}
+    if (!cpf) cpf = (sessionStorage.getItem('wizard.cpf')||'').toString();
+
+    if (cpf){
+      const acordos = new URL('/acordos/home/index.html', location.origin);
+      acordos.searchParams.set('theme', theme);
+      acordos.searchParams.set('returnTo', '/home-consulta?cpf='+encodeURIComponent(cpf)+(contrato?('&contrato='+encodeURIComponent(contrato)):''));
+      acordos.searchParams.set('cpf', cpf);
+      if (contrato) acordos.searchParams.set('contrato', contrato);
+      acordos.searchParams.set('from','home');
+      choose.searchParams.set('returnTo', acordos.pathname + acordos.search);
+    }
+    return choose.pathname + choose.search;
+  }
+
+  const backUrl = resolvePrev();
+
+  /* Rewire dos dois botões sem mexer no resto da sua página */
+  function rebind(id, handler){
+    const el = document.getElementById(id);
+    if (!el) return;
+    const clone = el.cloneNode(true);
+    el.replaceWith(clone);
+    clone.addEventListener('click', function(ev){
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      handler();
+    }, {capture:true});
+  }
+
+  rebind('btnSelecionarOp', function(){
+    try{ sessionStorage.setItem('spa.returnTo', backUrl); }catch(_){}
+    try{ sessionStorage.setItem('wizard.operacao','parcelas-originais'); }catch(_){}
+    if (window.__SA && typeof window.__SA.go === 'function') window.__SA.go(backUrl);
+    else location.assign(backUrl);
+  });
+
+  rebind('btnNovaBusca', function(){
+    try{
+      sessionStorage.removeItem('wizard.operacao');
+      sessionStorage.removeItem('wizard.acordo');
+      sessionStorage.removeItem('wizard.contrato');
+      sessionStorage.removeItem('wizard.cpf');
+      sessionStorage.removeItem('wizard.contractFilter');
+    }catch(_){}
+    const home = '/home-consulta' + (theme? ('?theme='+encodeURIComponent(theme)) : '');
+    if (window.__SA && typeof window.__SA.go === 'function') window.__SA.go(home);
+    else location.assign(home);
+  });
+})();
+</script>
+
+</body>
+</html>

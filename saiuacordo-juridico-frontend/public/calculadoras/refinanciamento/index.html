@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SaiuAcordo • Calculadora (Refinanciamento)</title>
+
+<style>
+  /* ===== Tema Claro v2 ===== */
+  :root{
+    --bg:#F5F7FA; --card:#FFFFFF; --soft:#FAFBFF; --text:#1F2937; --muted:#6B7280; --border:#E5E7EB;
+    --brand-ink:#070c7b; --brand:#0B5ED7; --brand-700:#0848A8;
+    --ok:#16A34A; --warn:#B45309; --bad:#DC2626;
+    --thead:#EEF2FF; --row:#F9FAFB; --row-hover:#F3F6FF; --focus:#93C5FD;
+    --shadow:0 6px 24px rgba(9,30,66,.05);
+  }
+  /* ===== Tema Escuro (harmonizado) ===== */
+  :root[data-theme="dark"]{
+    --bg:#0f1222; --card:#151935; --soft:#1b2042; --text:#e8ecf3; --muted:#9aa3b2; --border:#2a2f53;
+    --brand-ink:#AFC7FF; --brand:#505A78; --brand-700:#47506C;
+    --ok:#1DB954; --warn:#e5a100; --bad:#e94b4b;
+    --thead:#11162f; --row:#0e1330; --row-hover:#151a3a; --focus:#2f3564;
+    --shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  .container{max-width:960px;margin:0 auto;padding:12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:10px}
+  h2{margin:0 0 6px;color:var(--brand-ink);display:flex;gap:8px;align-items:center}
+  .badge{font-size:12px;font-weight:700;padding:4px 8px;border-radius:999px;border:1px solid var(--brand);color:var(--brand);background:transparent}
+  .hint{color:var(--muted);font-size:12px}
+  .btn{border:none;border-radius:12px;padding:9px 13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-700)}
+  .btn-outline{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+  .btn-outline:hover{background:rgba(11,94,215,.06)}
+  .form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+  .field{display:flex;flex-direction:column;gap:4px}
+  label{font-size:12px;color:var(--muted)}
+  input{background:var(--card);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:12px;min-width:160px}
+  :focus{outline:2px solid var(--focus);outline-offset:2px;border-radius:10px}
+
+  /* Tooltips acessíveis com atributo data-tip */
+  .has-tip{position:relative}
+  .has-tip[data-tip]:hover::after,.has-tip[data-tip]:focus-visible::after{
+    content:attr(data-tip); position:absolute; left:50%; transform:translateX(-50%);
+    bottom:calc(100% + 8px); background:#111; color:#fff; padding:6px 8px; font-size:12px;
+    border-radius:8px; white-space:nowrap; pointer-events:none; z-index:10;
+  }
+
+  /* Tabela compacta */
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:9px;border-bottom:1px solid var(--border);text-align:center;font-size:14px}
+  thead th{position:sticky;top:0;background:var(--thead);z-index:1}
+  tbody tr:nth-child(even){background:var(--row)}
+  tbody tr:hover{background:var(--row-hover)}
+  .money{text-align:right}
+  .table-wrap{overflow:auto;max-height:300px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+
+  /* Stats (4 cards) */
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:6px}
+  .stat{background:var(--soft);border:1px solid var(--border);border-radius:12px;padding:10px}
+  .stat span{display:block;color:var(--muted);font-size:12px}
+  .stat strong{display:block;margin-top:2px;font-size:16px}
+
+  /* Comparativo */
+  .compare{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .compare .box{flex:1 1 280px;background:var(--soft);border:1px solid var(--border);border-radius:12px;padding:10px}
+  .compare h4{margin:0 0 6px;color:var(--brand)}
+  .row-just{display:flex;justify-content:space-between;margin:4px 0}
+  .tag-ok{color:var(--ok)} .tag-warn{color:var(--warn)}
+
+  .clickable-row{cursor:pointer}
+  .clickable-row td:first-child{font-weight:700}
+
+  @media (max-width:640px){
+    .container{padding:10px}
+    .form-row{flex-direction:column;align-items:stretch}
+    .btn{width:100%}
+    table{min-width:640px}
+  }
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;padding:12px}
+  .modal .box{background:var(--card);border-radius:12px;max-width:460px;width:100%;padding:14px;border:1px solid var(--border);color:var(--text);box-shadow:var(--shadow)}
+  .modal .box h3{margin:0 0 6px;color:var(--brand-ink)}
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Toolbar -->
+    <div class="card">
+      <div class="form-row" style="justify-content:space-between">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-outline" id="btnSelecionarOp">← Selecionar operação</button>
+          <button class="btn btn-outline" id="btnNovaBusca">← Nova busca por CPF</button>
+        </div>
+        <div class="hint" id="toolbarInfo"></div>
+      </div>
+    </div>
+
+    <!-- Parcial atual -->
+    <div class="card">
+      <h2>Parcelas atuais do acordo <span class="badge">Operação: Refinanciamento</span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+          <tr>
+            <th>1) Nº</th><th>2) Valor</th><th>3) Vencimento</th>
+            <th>4) Valor Presente</th><th>5) Valor pago</th><th>6) Data de pagamento</th>
+          </tr>
+          </thead>
+          <tbody id="tbodyParcelas"><tr><td colspan="6" style="text-align:left;padding:12px">Carregando acordo...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="hint" id="resumoAcordo"></div>
+    </div>
+
+    <!-- Calculadora -->
+    <div class="card">
+      <h2>Calculadora <span class="badge">Refinanciamento</span></h2>
+
+      <!-- Linha: tipo + taxa -->
+      <div class="form-row">
+        <div class="field">
+          <label>Tipo de operação</label><div class="hint">Refinanciamento</div>
+        </div>
+        <div class="field">
+          <label>Definir taxa anual</label>
+          <div class="form-row">
+            <button class="btn btn-outline" id="btnRefin">Definir taxa</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats" id="stats">
+        <div class="stat"><span>Saldo devedor (FV)</span><strong>—</strong></div>
+        <div class="stat"><span>Valor Presente (VP)</span><strong>—</strong></div>
+        <div class="stat"><span>Valor pago (FV)</span><strong>—</strong></div>
+        <div class="stat"><span>Taxa aplicada</span><strong>—</strong></div>
+      </div>
+
+      <!-- Presets -->
+      <div class="field" style="margin-top:8px">
+        <label>Conjuntos pré-definidos</label>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Meses</th><th>Parcela (calculada)</th></tr></thead>
+            <tbody id="tabelaSugestoes"><tr><td colspan="2">Defina a taxa para ver sugestões.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="hint">Toque em <em>Meses</em> para simular por prazo, ou em <em>Parcela</em> para simular por valor.</div>
+      </div>
+
+      <!-- Formulários -->
+      <div class="form-row" style="margin-top:6px">
+        <div class="field" style="max-width:320px">
+          <label for="valorParcela">Valor da parcela (R$)</label>
+          <div class="form-row">
+            <input type="text" id="valorParcela" placeholder="Ex.: 450,00" />
+            <button class="btn has-tip" id="btnPorValor"
+              data-tip="Informe a PARCELA desejada; calculamos quantas parcelas serão necessárias (até o máximo permitido).">
+              Calcular por valor
+            </button>
+          </div>
+        </div>
+        <div class="field" style="max-width:260px">
+          <label for="numParcelas">Número de parcelas</label>
+          <div class="form-row">
+            <input type="number" id="numParcelas" placeholder="Ex.: 36" />
+            <button class="btn has-tip" id="btnPorPrazo"
+              data-tip="Informe o NÚMERO DE PARCELAS; calculamos a parcela aproximada mantendo o VP.">
+              Calcular por prazo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limites -->
+      <div class="form-row" style="margin-top:4px">
+        <div class="field" style="max-width:220px">
+          <label for="maxParcelas">Máximo de parcelas</label>
+          <input type="number" id="maxParcelas" value="48" readonly>
+        </div>
+        <div class="field" style="max-width:220px">
+          <label for="minParcela">Valor mínimo (R$)</label>
+          <input type="text" id="minParcela" value="100,00" readonly>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="card">
+      <h2>Resultado da simulação</h2>
+      <div id="resultado" aria-live="polite"></div>
+    </div>
+
+  </div>
+
+  <!-- Modal taxa -->
+  <div class="modal" id="modalTaxa" aria-hidden="true">
+    <div class="box">
+      <h3>Definir taxa anual</h3>
+      <div class="hint">Informe a taxa anual para o refinanciamento.</div>
+      <div class="form-row" style="margin-top:6px">
+        <div class="field">
+          <label for="taxaAnualInput">Taxa anual (%)</label>
+          <input type="number" id="taxaAnualInput" step="0.01" min="0" value="20">
+        </div>
+        <button class="btn" id="confirmTaxa">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+<!-- ===== Bridge DEVE vir antes do script local ===== -->
+<script src="/_sa-bridge.js"></script>
+
+<script>
+  /* ===== Tema (herdado/persistente) ===== */
+  (function(){
+    const qs = new URLSearchParams(location.search);
+    let theme = (window.__SA && __SA.theme) || qs.get('theme') || (sessionStorage.getItem('ui.theme')||'').trim();
+    theme = (theme==='dark'||theme==='light') ? theme : 'light';
+    document.documentElement.setAttribute('data-theme', theme==='dark' ? 'dark' : 'light');
+    try{ sessionStorage.setItem('ui.theme', theme); }catch(_){}
+  })();
+
+  /* Navegação (originais simples – ficam como fallback) */
+  document.getElementById('btnNovaBusca').addEventListener('click', ()=>{
+    try{
+      sessionStorage.removeItem('wizard.cpf');
+      sessionStorage.removeItem('wizard.acordo');
+      sessionStorage.removeItem('wizard.operacao');
+    }catch(_){}
+    const theme = sessionStorage.getItem('ui.theme') || 'light';
+    location.assign('/home-consulta/index.html' + (theme?`?theme=${encodeURIComponent(theme)}`:''));
+  });
+  (function(){
+    function goBack(){ try{ sessionStorage.removeItem('wizard.operacao'); }catch(e){} location.href='escolha-operacao.html'; }
+    const b=document.getElementById('btnSelecionarOp'); b.addEventListener('click', goBack);
+  })();
+
+  /* ===== Back universal com preservação de cadeia (sobrepõe o fallback acima) ===== */
+  (function(){
+    const btn = document.getElementById('btnSelecionarOp');
+    if(!btn) return;
+
+    function inferContratoCtx(){
+      try{ return JSON.parse(sessionStorage.getItem('wizard.contrato')||'{}'); }catch(_){ return {}; }
+    }
+
+    function buildReturnChainIfMissing(theme, qs){
+      // Constrói cadeia acordos -> home-consulta, caso não exista 'returnTo' na URL atual
+      const c = inferContratoCtx();
+      const cpf = qs.get('cpf') || c?.cpfCliente || '';
+      const contrato = qs.get('contrato') || c?.numContrato || '';
+      const from = qs.get('from') || 'home';
+
+      // innerReturn: home-consulta (opcionalmente com cpf)
+      const innerQ = new URLSearchParams();
+      if (theme) innerQ.set('theme', theme);
+      if (cpf) innerQ.set('cpf', cpf);
+      const innerReturn = '/home-consulta/index.html' + (innerQ.toString()?('?'+innerQ):'');
+
+      // acordos URL
+      const aQ = new URLSearchParams();
+      if (theme) aQ.set('theme', theme);
+      if (cpf) aQ.set('cpf', cpf);
+      if (contrato) aQ.set('contrato', contrato);
+      aQ.set('from', from);
+      aQ.set('returnTo', innerReturn);
+      return '/acordos/home/index.html' + '?' + aQ.toString();
+    }
+
+    function goBackToOperation(){
+      const qs = new URLSearchParams(location.search);
+      const theme = qs.get('theme') || sessionStorage.getItem('ui.theme') || '';
+      const cpf = qs.get('cpf') || '';
+      const contrato = qs.get('contrato') || '';
+      const from = qs.get('from') || '';
+      let returnTo = qs.get('returnTo');
+
+      if(!returnTo){ returnTo = buildReturnChainIfMissing(theme, qs); }
+
+      const targetQS = new URLSearchParams();
+      if (theme) targetQS.set('theme', theme);
+      if (returnTo) targetQS.set('returnTo', returnTo);
+      if (cpf) targetQS.set('cpf', cpf);
+      if (contrato) targetQS.set('contrato', contrato);
+      if (from) targetQS.set('from', from);
+
+      try{ sessionStorage.removeItem('wizard.operacao'); }catch(_){}
+      const candidates = ['/escolha-operacao/index.html','/escolha-operacao.html','escolha-operacao/index.html','escolha-operacao.html'];
+      const base = candidates[0]; // principal esperado
+      location.assign(base + (targetQS.toString()?('?'+targetQS):''));
+    }
+
+    // Rebind garantindo nossa navegação universal
+    const clone = btn.cloneNode(true);
+    btn.replaceWith(clone);
+    clone.addEventListener('click', goBackToOperation);
+  })();
+
+  /* ===== Estado/Utils do refinanciamento ===== */
+  const acordoRaw = sessionStorage.getItem('wizard.acordo');
+  if(!acordoRaw){ location.replace('/acordos/home/index.html'); }
+  const acordo = JSON.parse(acordoRaw||'{}');
+  const parcelasRaw = Array.isArray(acordo.parcelas) ? acordo.parcelas : [];
+
+  const fmtBRL = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const toNum = v => { if (v == null) return 0; if (typeof v === 'number') return v; const n = Number(String(v).replace(/\./g,'').replace(',', '.')); return isNaN(n) ? 0 : n; };
+  const parseDate = s => s ? new Date(s) : null;
+  const fmtDate = d => d ? d.toLocaleDateString('pt-BR') : '—';
+  const startOfDay = d => { const x=new Date(d); x.setHours(0,0,0,0); return x; };
+  const today = startOfDay(new Date());
+  document.getElementById('toolbarInfo').textContent = `Acordo ID: ${acordo?.acordoId ?? acordo?.id ?? '—'} • Contrato: ${acordo?.numContrato ?? acordo?.contrato_id ?? acordo?.numeroContrato ?? '—'}`;
+
+  function dedupParcelas(arr){ const map = new Map(); (arr||[]).forEach(p=>{ const key = p?.parcela_id ?? `${p?.acordo_id||''}:${p?.numeroParcela||''}:${p?.dataVencimento||''}`; if(!map.has(key)) map.set(key, p); }); return [...map.values()]; }
+  function isPaga(p){
+    const st = String(p?.situacao || '').toUpperCase();
+    const stPg = String(p?.situacaoPagamento || '').toUpperCase();
+    const pagoPorStatus = /(LIQUID|QUITAD|PAG[OA]|PROCESS)/.test(st) || /(LIQUID|PROCESS)/.test(stPg);
+    const pagoPorValor  = toNum(p?.valor_pago) >= Math.max(0, toNum(p?.valor));
+    const temDataPg     = !!p?.data_pagamento;
+    return pagoPorStatus || pagoPorValor || temDataPg;
+  }
+  function sortParcelas(arr){ return [...arr].sort((a,b)=>{
+    const an = Number(a?.numeroParcela ?? 0), bn = Number(b?.numeroParcela ?? 0);
+    if (an !== bn) return an - bn;
+    const ad = a?.dataVencimento ? new Date(a.dataVencimento).getTime() : 0;
+    const bd = b?.dataVencimento ? new Date(b.dataVencimento).getTime() : 0;
+    return ad - bd;
+  }); }
+
+  let taxaAnual = 0.20;
+  let i_m = Math.pow(1 + taxaAnual, 1/12) - 1;
+  let i_d = Math.pow(1 + i_m, 1/30) - 1;
+
+  /* Parcelas + valores globais */
+  const parcelas = sortParcelas(dedupParcelas(parcelasRaw));
+  const valorAcordo = parcelas.reduce((s,p)=> s + toNum(p?.valor), 0);
+  const totalPagoFlag = parcelas.reduce((s,p)=> s + (isPaga(p) ? (toNum(p?.valor_pago)||toNum(p?.valor)) : 0), 0);
+
+  function valorPresenteParcela(valorFV, venc){
+    const fv = toNum(valorFV); if (!venc) return fv;
+    const d = startOfDay(new Date(venc));
+    const diffDays = Math.round((d - today) / (24*60*60*1000));
+    if (diffDays <= 0) return fv;
+    const fator = Math.pow(1 + i_d, diffDays);
+    return fv / fator;
+  }
+
+  /* Bases da simulação */
+  let futuras = []; let VPOriginal = 0; let saldoFVOriginal = 0; let totalPagoFV = 0;
+  function recomputarBases(){
+    const futurasVals = []; const futurasObjs = []; let t = 0;
+    for(const p of parcelas){ if(!isPaga(p)){ t += 1; const v = toNum(p.valor); futurasVals.push(v); futurasObjs.push({valor:v, t}); } }
+    futuras = futurasObjs.slice();
+    saldoFVOriginal = futurasVals.reduce((a,b)=>a+b,0);
+    VPOriginal = futurasVals.reduce((acc,v,idx)=>acc + v / Math.pow(1+i_m, idx+1), 0);
+    const diffWay = Math.max(0, valorAcordo - saldoFVOriginal);
+    totalPagoFV = Math.max(totalPagoFlag, diffWay);
+    paintStats();
+  }
+
+  /* Render parcelas */
+  function renderTabelaParcelas6(){
+    const tbody = document.getElementById('tbodyParcelas');
+    if (!parcelas.length){ tbody.innerHTML = `<tr><td colspan="6" style="text-align:left;padding:12px">Este acordo não possui parcelas.</td></tr>`; return; }
+    let html = '';
+    for (const p of parcelas){
+      const numero   = p?.numeroParcela ?? '—';
+      const valor    = toNum(p?.valor);
+      const vencD    = p?.dataVencimento ? new Date(p.dataVencimento) : null;
+      const pv       = valorPresenteParcela(valor, p?.dataVencimento);
+      const paga     = isPaga(p);
+      const valorPago= paga ? (toNum(p?.valor_pago) || valor) : 0;
+      const dtPago   = paga ? fmtDate(parseDate(p?.data_pagamento)) : '—';
+      html += `<tr><td>${numero}</td><td class="money">${fmtBRL(valor)}</td><td>${fmtDate(vencD)}</td><td class="money">${fmtBRL(pv)}</td><td class="money">${fmtBRL(valorPago)}</td><td>${dtPago}</td></tr>`;
+    }
+    tbody.innerHTML = html;
+    document.getElementById('resumoAcordo').innerHTML =
+      `Acordo: <strong>${acordo?.acordoId ?? acordo?.id ?? '—'}</strong> • Soma do acordo: <strong>${fmtBRL(valorAcordo)}</strong>`;
+  }
+
+  function paintStats(){
+    const s = document.getElementById('stats').querySelectorAll('.stat strong');
+    if (s.length < 4) return;
+    s[0].textContent = fmtBRL(saldoFVOriginal);
+    s[1].textContent = fmtBRL(VPOriginal);
+    s[2].textContent = fmtBRL(totalPagoFV);
+    s[3].textContent = `${(i_m*100).toFixed(3)}% a.m. (${(taxaAnual*100).toFixed(2)}% a.a.)`;
+  }
+
+  /* Taxa (modal) */
+  const modal = document.getElementById('modalTaxa');
+  const taxaInput = document.getElementById('taxaAnualInput');
+  function abrirModalTaxa(){ taxaInput.value = (taxaAnual*100).toFixed(2); modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
+  document.getElementById('btnRefin').onclick = abrirModalTaxa;
+  document.getElementById('confirmTaxa').onclick = ()=>{
+    const ta = Number(taxaInput.value)/100;
+    taxaAnual = isFinite(ta) ? Math.max(0,ta) : 0.20;
+    i_m = Math.pow(1 + taxaAnual, 1/12) - 1;
+    i_d = Math.pow(1 + i_m, 1/30) - 1;
+    desenharSugestoes([30,36,42,48]); renderTabelaParcelas6(); recomputarBases();
+    modal.style.display='none'; modal.setAttribute('aria-hidden','true');
+  };
+  modal.addEventListener('click', (e)=>{ if(e.target===modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); } });
+
+  /* Motor */
+  function PMTfromPV(PV,n){ return PV * i_m / (1 - Math.pow(1+i_m, -n)); }
+  function NfromPVPMT(PV,PMT){ if (PMT <= PV * i_m) return Infinity; return - Math.log(1 - PV * i_m / PMT) / Math.log(1+i_m); }
+  function desenharSugestoes(prazos){
+    const tb = document.getElementById('tabelaSugestoes');
+    let linhas = '';
+    prazos.forEach(m=>{ const pmt = PMTfromPV(VPOriginal, m); linhas += `<tr class="clickable-row" data-meses="${m}" data-pmt="${pmt}"><td>${m}</td><td>${fmtBRL(pmt)}</td></tr>`; });
+    tb.innerHTML = linhas || `<tr><td colspan="2">Defina a taxa para ver sugestões.</td></tr>`;
+    tb.onclick = e=>{
+      const tr = e.target.closest('tr.clickable-row'); if(!tr) return;
+      const m = parseInt(tr.getAttribute('data-meses'),10);
+      const pmt = Number(tr.getAttribute('data-pmt'));
+      const cellIndex = Array.from(tr.children).indexOf(e.target.closest('td'));
+      if(cellIndex === 0){ document.getElementById('numParcelas').value = m; simularPorPrazo(); }
+      else { document.getElementById('valorParcela').value = fmtBRL(pmt).replace(/[^\d,.-]/g,''); simularPorValor(); }
+    };
+  }
+
+  function simularAgendaPorPMT(PV, PMT, maxN){
+    let nRaw = NfromPVPMT(PV, PMT);
+    let n = Math.ceil(isFinite(nRaw) ? nRaw : maxN); n = Math.min(n, maxN);
+
+    const origPV = futuras.map(f => f.valor / Math.pow(1+i_m, f.t));
+    const origFV = futuras.map(f => f.valor);
+    let origIdx = 0; let origPVRem = origPV.slice(); let origFVRem = origFV.slice();
+
+    let R = PV; const linhas = [];
+    for(let k=1; k<=n; k++){
+      const pvBase = PMT / Math.pow(1+i_m, k);
+      const pvPay = (k===n || pvBase >= R) ? R : pvBase;
+      const fvPay = pvPay * Math.pow(1+i_m, k);
+      R = +(R - pvPay); if (R < 1e-8) R = 0;
+
+      // Distribuição sobre originais
+      let restantePV = pvPay, equivalencia = 0, substituidoFV = 0;
+      while(restantePV > 1e-10 && origIdx < origPVRem.length){
+        const pvDisp = origPVRem[origIdx], fvDisp = origFVRem[origIdx];
+        if (pvDisp <= restantePV + 1e-10){
+          equivalencia += 1; substituidoFV += fvDisp; restantePV -= pvDisp; origIdx += 1;
+        } else {
+          const fraq = restantePV / pvDisp;
+          equivalencia += fraq; substituidoFV += fvDisp * (1 - fraq);
+          origPVRem[origIdx] = pvDisp - restantePV;
+          origFVRem[origIdx] = fvDisp * (1 - fraq);
+          restantePV = 0;
+        }
+      }
+
+      const descontoNominal = substituidoFV - fvPay;
+      linhas.push({k, fv:fvPay, pv:pvPay, saldoVPpos:R, equivalencia, descontoNominal});
+      if (R === 0) break;
+    }
+
+    const totalFV = linhas.reduce((s,l)=>s+l.fv,0);
+    let cumul = 0; for (const l of linhas){ cumul += l.fv; l.saldoFuturoPos = +(totalFV - cumul); }
+    return {linhas, totalFV, n: linhas.length};
+  }
+
+  function montarTabelaSimulacao(sim){
+    let html = `<div class="table-wrap"><table><thead><tr>
+      <th>#</th><th>Parcela (R$)</th><th>VP parcela (R$)</th><th>Equivalência (parc. orig.)</th><th>Desconto / Encargo (R$)</th><th>Saldo futuro (R$)</th><th>Saldo VP (R$)</th>
+    </tr></thead><tbody>`;
+    sim.linhas.forEach(l=>{
+      const tagClass = l.descontoNominal >= 0 ? 'tag-ok' : 'tag-warn';
+      const tagLabel = l.descontoNominal >= 0 ? 'Desconto' : 'Encargo';
+      html += `<tr>
+        <td>${l.k}</td>
+        <td class="money">${fmtBRL(l.fv)}</td>
+        <td class="money">${fmtBRL(l.pv)}</td>
+        <td>${l.equivalencia.toFixed(2)}</td>
+        <td class="${tagClass}">${tagLabel}: ${fmtBRL(Math.abs(l.descontoNominal))}</td>
+        <td class="money">${fmtBRL(sim.linhas.length===l.k ? 0 : l.saldoFuturoPos)}</td>
+        <td class="money">${fmtBRL(l.saldoVPpos)}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    return html;
+  }
+
+  function montarComparativo(totalFVSim, nSim){
+    const nOrig = futuras.length;
+    const diffFV = saldoFVOriginal - totalFVSim;
+    const tag = diffFV >= 0 ? 'tag-ok' : 'tag-warn';
+    const rot = diffFV >= 0 ? 'Desconto nominal' : 'Encargo nominal';
+    return `
+      <div class="box">
+        <h4>Original</h4>
+        <div class="row-just"><span>Nº parcelas restantes</span><strong>${nOrig}</strong></div>
+        <div class="row-just"><span>Saldo devedor (FV)</span><strong>${fmtBRL(saldoFVOriginal)}</strong></div>
+        <div class="row-just"><span>Valor Presente</span><strong>${fmtBRL(VPOriginal)}</strong></div>
+      </div>
+      <div class="box">
+        <h4>Simulação</h4>
+        <div class="row-just"><span>Nº de parcelas</span><strong>${nSim}</strong></div>
+        <div class="row-just"><span>Total a pagar (FV)</span><strong>${fmtBRL(totalFVSim)}</strong></div>
+        <div class="row-just ${tag}"><span>${rot}</span><strong>${fmtBRL(Math.abs(diffFV))}</strong></div>
+        <div class="row-just"><span>VP (≈ original)</span><strong>${fmtBRL(VPOriginal)}</strong></div>
+      </div>`;
+  }
+
+  function toNumberLoose(str){ if (typeof str !== 'string') return Number(str); const s = str.replace(/\s/g,'').replace(/\./g,'').replace(',', '.'); const n = Number(s); return isNaN(n) ? NaN : n; }
+  function getNumberFromInput(id){ return toNumberLoose(document.getElementById(id).value); }
+  function setCurrencyReadonly(id, num){ document.getElementById(id).value = fmtBRL(num).replace(/[^\d,.-]/g,''); }
+
+  function simularPorValor(){
+    const PMT = getNumberFromInput('valorParcela');
+    const maxN = parseInt(document.getElementById('maxParcelas').value || '48',10);
+    const minPMT = getNumberFromInput('minParcela') || 100;
+    if (!isFinite(PMT)){ alert('Digite o valor da parcela.'); return; }
+    if (PMT < minPMT){ alert(`Valor mínimo da parcela: ${fmtBRL(minPMT)}`); return; }
+    const sim = simularAgendaPorPMT(VPOriginal, PMT, maxN);
+    let html = `<h3>Simulação (por valor de parcela)</h3>`;
+    html += montarTabelaSimulacao(sim);
+    html += `<div class="compare">${montarComparativo(sim.totalFV, sim.n)}</div>`;
+    document.getElementById('resultado').innerHTML = html;
+  }
+
+  function simularPorPrazo(){
+    let n = parseInt(document.getElementById('numParcelas').value,10);
+    const maxN = parseInt(document.getElementById('maxParcelas').value || '48',10);
+    const minPMT = getNumberFromInput('minParcela') || 100;
+    if (!n){ alert('Digite o número de parcelas.'); return; }
+    if (n > maxN){ alert(`Máximo permitido: ${maxN} parcelas.`); n = maxN; }
+    const PMT = VPOriginal * i_m / (1 - Math.pow(1+i_m, -n));
+    if (PMT < minPMT){ alert(`Para ${n} parcelas, a parcela calculada ficou abaixo do mínimo (${fmtBRL(minPMT)}).`); return; }
+    const sim = simularAgendaPorPMT(VPOriginal, PMT, n);
+    let html = `<h3>Simulação (por prazo)</h3><div class="hint">Parcela calculada: <strong>${fmtBRL(PMT)}</strong></div>`;
+    html += montarTabelaSimulacao(sim);
+    html += `<div class="compare">${montarComparativo(sim.totalFV, sim.n)}</div>`;
+    document.getElementById('resultado').innerHTML = html;
+  }
+
+  document.getElementById('btnPorValor').addEventListener('click', simularPorValor);
+  document.getElementById('btnPorPrazo').addEventListener('click', simularPorPrazo);
+  document.getElementById('valorParcela').addEventListener('keydown', e=>{ if(e.key==='Enter') simularPorValor(); });
+  document.getElementById('numParcelas').addEventListener('keydown', e=>{ if(e.key==='Enter') simularPorPrazo(); });
+
+  setCurrencyReadonly('minParcela', 100);
+  renderTabelaParcelas6();
+  recomputarBases();
+  desenharSugestoes([30,36,42,48]);
+</script>
+</body>
+</html>

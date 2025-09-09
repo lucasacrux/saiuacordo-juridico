@@ -1,0 +1,47 @@
+﻿# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Web
+node_modules/
+dist/
+build/
+out/
+.next/
+coverage/
+.cache/
+*.log
+
+# Playwright
+.playwright/
+playwright-report/
+test-results/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Supabase
+.supabase/
+supabase/.temp/
+
+# Env / Segredos
+.env
+.env.*
+*.pem
+*.key
+*.p12
+
+# DB / Binários grandes
+*.sqlite
+*.db
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.mp4
+*.mov
+*.wav
