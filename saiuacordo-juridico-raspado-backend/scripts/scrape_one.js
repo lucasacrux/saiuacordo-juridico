@@ -16,6 +16,7 @@ import crypto from 'node:crypto';
 import readline from 'node:readline/promises';
 import fs from 'node:fs/promises';
 import { stdin as input, stdout as output } from 'node:process';
+import { ImapFlow } from 'imapflow';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const sha1 = (s) => crypto.createHash('sha1').update(s).digest('hex');
@@ -107,7 +108,7 @@ async function findLoginInputsStrict(page) {
     passInput = (await loc.count()) ? loc : null;
   }
   if (!passInput) {
-    const loc = page.locator('input[type="password"]').first();
+    const loc = page.locator('input')[type="password"]').first();
     passInput = (await loc.count()) ? loc : null;
   }
   if (!passInput) return { userInput: null, passInput: null };
@@ -150,11 +151,61 @@ async function findLoginInputsStrict(page) {
   return { userInput, passInput };
 }
 
-// 2FA por e-mail (gancho opcional — desativado por padrão)
+// 2FA por e-mail via IMAP (opcional)
 async function tryHandle2FAFromEmail(page) {
   if (process.env.ENABLE_2FA_EMAIL !== '1') return false;
-  console.log('[2FA] Aguardando código por e-mail… (gancho pronto; implementar leitura de caixa postal)');
-  return false;
+  const host = process.env.MAIL_IMAP_HOST;
+  const port = Number(process.env.MAIL_IMAP_PORT || 993);
+  const secure = String(process.env.MAIL_IMAP_SECURE || '1') !== '0';
+  const user = process.env.MAIL_IMAP_USER;
+  const pass = process.env.MAIL_IMAP_PASS;
+  const lookback = Number(process.env.MAIL_LOOKBACK_MINUTES || 15);
+  const fromRx = process.env.MAIL_OTP_FROM ? new RegExp(process.env.MAIL_OTP_FROM, 'i') : null;
+  const subjRx = process.env.MAIL_OTP_SUBJECT_RX ? new RegExp(process.env.MAIL_OTP_SUBJECT_RX, 'i') : null;
+  const bodyRx = new RegExp(process.env.MAIL_OTP_BODY_RX || '\\b\\d{6}\\b', 'i');
+  const timeoutMs = Number(process.env.TJSP_OTP_TIMEOUT_MS || 15000);
+  const since = new Date(Date.now() - lookback * 60 * 1000);
+  const deadline = Date.now() + timeoutMs;
+
+  console.log('[2FA] Aguardando código por e-mail via IMAP...');
+  const client = new ImapFlow({ host, port, secure, auth: { user, pass } });
+  try {
+    await client.connect();
+    await client.mailboxOpen('INBOX');
+    let code = null;
+    while (!code && Date.now() < deadline) {
+      for await (const msg of client.fetch({ since }, { envelope: true, source: true })) {
+        const from = (msg.envelope?.from || []).map(f => f.address || '').join(',');
+        const subject = msg.envelope?.subject || '';
+        if ((fromRx ? fromRx.test(from) : true) && (subjRx ? subjRx.test(subject) : true)) {
+          const body = msg.source.toString('utf8');
+          const m = body.match(bodyRx);
+          if (m) { code = m[1] || m[0]; break; }
+        }
+      }
+      if (!code) await new Promise(r => setTimeout(r, 5000));
+    }
+    await client.logout().catch(() => {});
+    if (!code) {
+      console.warn('[2FA] Código não encontrado no e-mail.');
+      return false;
+    }
+    const input = await findInputByLabel(page, /(c[oó]digo|token|verifica[cç][aã]o|autentica[cç][aã]o)/i) || page.locator('input').first();
+    if (!(await input.count())) {
+      console.warn('[2FA] Campo para código não localizado.');
+      return false;
+    }
+    await input.fill('');
+    await page.keyboard.type(code, { delay: 80 });
+    const btn = page.getByRole('button', { name: /(confirmar|validar|entrar|acessar|enviar)/i }).first();
+    if (await btn.count()) await btn.click({ delay: 50 }).catch(() => {});
+    console.log('[2FA] Código preenchido automaticamente.');
+    return true;
+  } catch (err) {
+    console.warn('[2FA] Falha IMAP:', err.message);
+    try { await client.logout(); } catch {}
+    return false;
+  }
 }
 
 async function autoLoginESAJ(page, rl, creds = {}) {
@@ -188,7 +239,7 @@ async function autoLoginESAJ(page, rl, creds = {}) {
   await page.waitForTimeout(80);
 
   try {
-    const focusIsPass = await page.locator('input[type="password"]').isFocused();
+    const focusIsPass = await page.locator('input')[type="password"]').isFocused();
     if (!focusIsPass && passInput) await passInput.focus();
   } catch {}
   await page.keyboard.type(pass, { delay: 50 });
@@ -1553,7 +1604,7 @@ async function goToCNJ(page, cnj) {
       await page.waitForLoadState('networkidle').catch(() => {});
       return true;
     }
-    const submit = page.locator('input[type="submit"]').filter({ hasText: /pesquisar|consultar|buscar/i }).first();
+    const submit = page.locator('input')[type="submit"]').filter({ hasText: /pesquisar|consultar|buscar/i }).first();
     if (await submit.isVisible().catch(() => false)) {
       await sleep(450);
       await Promise.all([

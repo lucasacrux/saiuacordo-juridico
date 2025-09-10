@@ -50,6 +50,10 @@ As `.env` variam por serviço. Exemplos (resumo):
 - PW_SLOWMO: atraso ms para debug
 - TJSP_OTP_TIMEOUT_MS: tempo de espera pelo OTP (default 15000)
 - TJSP_FLOW_TTL_MS: TTL do fluxo de autenticação
+- Opcional: ENABLE_2FA_EMAIL=1 e variáveis MAIL_IMAP_HOST/PORT/SECURE, MAIL_IMAP_USER/PASS,
+  MAIL_LOOKBACK_MINUTES, MAIL_OTP_FROM, MAIL_OTP_SUBJECT_RX e MAIL_OTP_BODY_RX para que o
+  raspador leia o código 2FA via IMAP (no Gmail use host `imap.gmail.com`, porta 993 e uma
+  senha de app)
 
 ### saiuacordo-juridico-chat/backend (.env)
 - DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME: conexão MySQL
