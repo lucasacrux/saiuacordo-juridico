@@ -2076,7 +2076,6 @@ async function main() {
 
   
 
-  const headerBasic   = await extractHeaderBasic(page);
   const headerWide    = await extractCaseSummary(page);
   const headerSection = await extractHeaderFromSection(page);
   const headerPrecise = await extractHeaderESAJPrecise(page);
@@ -2085,35 +2084,31 @@ async function main() {
     classe:
       sanitizeClasse(headerPrecise.classe) ??
       sanitizeClasse(headerSection.classe) ??
-      sanitizeClasse(headerBasic.classe) ??
       sanitizeClasse(headerWide.classe) ?? null,
   
-    assunto:  headerPrecise.assunto  ?? headerSection.assunto  ?? headerBasic.assunto  ?? headerWide.assunto  ?? null,
-    foro:     headerPrecise.foro     ?? headerSection.foro     ?? headerBasic.foro     ?? headerWide.foro     ?? null,
-    vara:     headerPrecise.vara     ?? headerSection.vara     ?? headerBasic.vara     ?? headerWide.vara     ?? null,
-    juiz:     headerPrecise.juiz     ?? headerSection.juiz     ?? headerBasic.juiz     ?? headerWide.juiz     ?? null,
+    assunto:  headerPrecise.assunto  ?? headerSection.assunto  ?? headerWide.assunto  ?? null,
+    foro:     headerPrecise.foro     ?? headerSection.foro     ?? headerWide.foro     ?? null,
+    vara:     headerPrecise.vara     ?? headerSection.vara     ?? headerWide.vara     ?? null,
+    juiz:     headerPrecise.juiz     ?? headerSection.juiz     ?? headerWide.juiz     ?? null,
   
     // Distribuição: só do campo correto do header
     distribution_at:
       headerPrecise.distribution_at ??
       headerSection.distribution_at ??
-      (headerBasic.distribuicao ? `${toISOFromBR(headerBasic.distribuicao)}T00:00:00` : null) ??
       headerWide.distribution_at ?? null,
   
     // Controle: somente do campo "Controle", com sanitização estrita AAAA/NNNNNN
     control_code:
       sanitizeControlCode(headerPrecise.control_code_raw) ??
       sanitizeControlCode(headerSection.control_code) ??
-      sanitizeControlCode(headerBasic.controle) ??
       sanitizeControlCode(headerWide.control_code) ?? null,
   
-    area: headerPrecise.area ?? headerSection.area ?? headerBasic.area ?? headerWide.area ?? null,
+    area: headerPrecise.area ?? headerSection.area ?? headerWide.area ?? null,
   
     // Valor da ação: BRL → número
     valor_acao:
       (headerPrecise.valor_acao_raw ? toNumberBRL(headerPrecise.valor_acao_raw) : null) ??
       headerSection.valor_acao ??
-      (headerBasic.valorAcao ? toNumberBRL(headerBasic.valorAcao) : null) ??
       headerWide.valor_acao ?? null,
   };
 

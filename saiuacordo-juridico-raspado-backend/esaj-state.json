@@ -225,7 +225,7 @@
       "value": "undefined",
       "domain": "esaj.tjsp.jus.br",
       "path": "/sajcas",
-      "expires": 1788642159.058371,
+      "expires": 1789010107.467696,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -235,7 +235,7 @@
       "value": "false",
       "domain": "esaj.tjsp.jus.br",
       "path": "/sajcas",
-      "expires": 1788642159.058665,
+      "expires": 1789010107.467939,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -245,14 +245,14 @@
       "value": "false",
       "domain": "esaj.tjsp.jus.br",
       "path": "/sajcas",
-      "expires": 1788642159.058822,
+      "expires": 1789010107.468162,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     },
     {
       "name": "JSESSIONID",
-      "value": "7F704F8F6CF5BF6B2F57FDD1A331F50C.cas5",
+      "value": "72F3359079044DBEEDD293BE239D725F.cas15",
       "domain": "esaj.tjsp.jus.br",
       "path": "/sajcas",
       "expires": -1,
@@ -292,7 +292,7 @@
     },
     {
       "name": "JSESSIONID",
-      "value": "BDAE5CDCB41AA4138274A41230A15686.layout4",
+      "value": "12374D9E45458D291D83BDBF9359FE04.layout4",
       "domain": "esaj.tjsp.jus.br",
       "path": "/esaj",
       "expires": -1,
@@ -305,7 +305,7 @@
       "value": "173948983.1756681585.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
       "domain": ".esaj.tjsp.jus.br",
       "path": "/",
-      "expires": 1772874160,
+      "expires": 1773242108,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -322,10 +322,10 @@
     },
     {
       "name": "__utma",
-      "value": "173948983.301016013.1756681585.1757096552.1757105499.8",
+      "value": "173948983.301016013.1756681585.1757105499.1757474105.9",
       "domain": ".esaj.tjsp.jus.br",
       "path": "/",
-      "expires": 1791666160.046451,
+      "expires": 1792034108.598846,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -335,17 +335,17 @@
       "value": "1",
       "domain": ".esaj.tjsp.jus.br",
       "path": "/",
-      "expires": 1757106756,
+      "expires": 1757474704,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     },
     {
       "name": "__utmb",
-      "value": "173948983.4.10.1757105499",
+      "value": "173948983.2.10.1757474105",
       "domain": ".esaj.tjsp.jus.br",
       "path": "/",
-      "expires": 1757107960,
+      "expires": 1757475908,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -361,7 +361,7 @@
         },
         {
           "name": "intervalo",
-          "value": "{\"tempo\":159.996,\"horaAtual\":1757106180061}"
+          "value": "{\"tempo\":166,\"horaAtual\":1757474122608}"
         }
       ]
     }
